@@ -1,7 +1,7 @@
 #define ALLOCATE_EXTERN
 #include "HC89S003F4.h"
 //#include "Mcu_api.h"
-#include "bluetooth.h"
+#include "wifi.h"
 
 #define V12 //硬件板卡的版本
 //#define V10
@@ -124,6 +124,7 @@ void Flash_EraseBlock(unsigned int fui_Address); //扇区擦除
 void FLASH_WriteData(unsigned char fuc_SaveData, unsigned int fui_Address);
 //void Flash_WriteArr(unsigned int fui_Address,unsigned char fuc_Length,unsigned char *fucp_SaveArr);//写入任意长度数据
 void Flash_ReadArr(unsigned int fui_Address, unsigned char fuc_Length, unsigned char *fucp_SaveArr); //读取任意长度数据
+void savevar(void);
 
 //unsigned char guc_Write_a[5] = {0};	//写入数据
 unsigned char xdata guc_Read_a[10] = {0x00}; //用于存放读取的数据
@@ -936,7 +937,7 @@ void XBRHandle(void)
 							//									send_data(DELAY_NUM>>2);		//测试用
 							//									send_data(slowchcnt);
 							//									send_data(0xaa);
-							send_data(0xdd);
+							//send_data(0xdd);
 
 							SUM1_num = 8;
 							LIGHT_off = 0;
@@ -1185,8 +1186,8 @@ void reset_bt_module(void);
 ***************************************************************************************/
 void main()
 {
-	u8 i;
-	bt_protocol_init(); //mcu_sdk
+//	u8 i;
+	wifi_protocol_init(); //mcu_sdk
 	InitSYS();
 	GPIO_Init();
 	//LIGHT_ON;
@@ -1256,31 +1257,31 @@ void main()
 		if (resetbtcnt >= 3)	//行为是每三次上电会复位一次蓝牙模块
 		{
 			resetbtcnt = 0;
-			reset_bt_module();
+			//reset_bt_module();
 		}
 
-		if (check_group_count <= 2) //一上电间隔一秒获取3次群组地址
-		{
-			if (check_group_flag == 1)
-			{
-				check_group_flag = 0;
-				check_group_count++;
+//		if (check_group_count <= 2) //一上电间隔一秒获取3次群组地址
+//		{
+//			if (check_group_flag == 1)
+//			{
+//				check_group_flag = 0;
+//				check_group_count++;
 
-				send_data(0x55);
-				send_data(0xAA);
-				send_data(0X00);
-				send_data(0XB4); //新的命令字，功能不明
-				send_data(0X00);
-				send_data(0X00);
-				send_data(0Xb3);
-			}
-		}
+//				send_data(0x55);
+//				send_data(0xAA);
+//				send_data(0X00);
+//				send_data(0XB4); //新的命令字，功能不明
+//				send_data(0X00);
+//				send_data(0X00);
+//				send_data(0Xb3);
+//			}
+//		}
 		WDTC |= 0x10; //清看门狗
 
 		if (while_1flag == 0)
 		{
 			if ((times & 0x1f) == 0)
-				bt_uart_service();
+				wifi_uart_service();
 		}
 
 		if (SWITCHfXBR == 1) //雷达开, app控制
@@ -1337,19 +1338,19 @@ void main()
 			//联动
 			if (Linkage_flag == 1)
 			{
-				if (Light_on_flagpre != Light_on_flag)
-				{
-					Light_on_flagpre = Light_on_flag;
-					LIGHT = 1;
-					//PWM3init(100);
-					for (i = 0; i < 8; i++)
-					{
-						if (groupaddr[i] != 0)
-						{
-							mcu_dp_bool_mesh_update(DPID_SWITCH_LED2, SWITCHflag2, groupaddr[i]);
-						}
-					}
-				}
+//				if (Light_on_flagpre != Light_on_flag)
+//				{
+//					Light_on_flagpre = Light_on_flag;
+//					LIGHT = 1;
+//					//PWM3init(100);
+//					for (i = 0; i < 8; i++)
+//					{
+//						if (groupaddr[i] != 0)
+//						{
+//							mcu_dp_bool_mesh_update(DPID_SWITCH_LED2, SWITCHflag2, groupaddr[i]);
+//						}
+//					}
+//				}
 			}
 		}
 		else
@@ -1522,3 +1523,62 @@ void FLASH_WriteData(unsigned char fuc_SaveData, unsigned int fui_Address)
   * @返回值 无
   * @注		  无
   */
+
+
+void savevar(void)
+{
+	unsigned char i;
+	Flash_EraseBlock(0x2F00);
+	Delay_us_1(10000);
+
+	i=(TH/1000)>>8;
+	FLASH_WriteData(i,0x2F00+0);
+	Delay_us_1(100);
+	
+    i=(TH/1000)&0xff;
+	FLASH_WriteData(i,0x2F00+1);
+	Delay_us_1(100);
+	
+    i=LIGHT_TH;
+	FLASH_WriteData(i,0x2F00+2);
+	Delay_us_1(100);
+	
+	i=DELAY_NUM>>8;
+	FLASH_WriteData(i,0x2F00+3);
+	Delay_us_1(100);
+	i=DELAY_NUM&0xff;//&0xff;
+	FLASH_WriteData(i,0x2F00+4);
+	Delay_us_1(100);
+	
+	i=lightvalue;
+	FLASH_WriteData(i,0x2F00+5);
+	Delay_us_1(100);
+	
+	i=lowlightDELAY_NUM;
+	FLASH_WriteData(i,0x2F00+6);
+	Delay_us_1(100);
+	
+	i=SWITCHfXBR;//&0xff;
+	FLASH_WriteData(i,0x2F00+7);
+	Delay_us_1(100);
+	
+//	i=addr;//&0xff;
+//	FLASH_WriteData(i,0X2F00+7);
+//	Delay_us_1(100);
+//	
+//	i=devgroup;//&0xff;
+//	FLASH_WriteData(i,0X2F00+8);
+//	Delay_us_1(100);
+
+//	i=addrend;
+//	FLASH_WriteData(i,0X2F00+9);
+//	Delay_us_1(100);
+	
+	Flash_EraseBlock(0x2F80);
+	Delay_us_1(10000);
+	FLASH_WriteData(0,0x2F80+0);
+	
+	EA=1;				//-20200927
+
+}
+

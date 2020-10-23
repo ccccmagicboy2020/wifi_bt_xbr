@@ -1,21 +1,18 @@
-/****************************************Copyright (c)*************************
-**                               °æÈ¨ËùÓĞ (C), 2015-2017, Í¿Ñ»¿Æ¼¼
+/**********************************Copyright (c)**********************************
+**                       ç‰ˆæƒæ‰€æœ‰ (C), 2015-2020, æ¶‚é¸¦ç§‘æŠ€
 **
-**                                 http://www.tuya.com
+**                             http://www.tuya.com
 **
-**--------------ÎÄ¼şĞÅÏ¢-------------------------------------------------------
-**ÎÄ   ¼ş   Ãû: mcu_api.c
-**Ãè        Êö: ÏÂ·¢/ÉÏ±¨Êı¾İ´¦Àíº¯Êı
-**Ê¹ ÓÃ Ëµ Ã÷ : ´ËÎÄ¼şÏÂº¯ÊıÎŞĞëÓÃ»§ĞŞ¸Ä,ÓÃ»§ĞèÒªµ÷ÓÃµÄÎÄ¼ş¶¼ÔÚ¸ÃÎÄ¼şÄÚ
-**
-**
-**--------------µ±Ç°°æ±¾ĞŞ¶©---------------------------------------------------
-** °æ  ±¾: v1.0
-** ÈÕ¡¡ÆÚ: 2017Äê5ÔÂ3ÈÕ
-** Ãè¡¡Êö: 1:´´½¨Í¿Ñ»bluetooth¶Ô½ÓMCU_SDK
-**
-**-----------------------------------------------------------------------------
-******************************************************************************/
+*********************************************************************************/
+/**
+ * @file    mcu_api.h
+ * @author  æ¶‚é¸¦ç»¼åˆåè®®å¼€å‘ç»„
+ * @version v2.5.5
+ * @date    2020.6.1
+ * @brief   ç”¨æˆ·éœ€è¦ä¸»åŠ¨è°ƒç”¨çš„å‡½æ•°éƒ½åœ¨è¯¥æ–‡ä»¶å†…
+ */
+ 
+ 
 #ifndef __MCU_API_H_
 #define __MCU_API_H_
 
@@ -26,206 +23,505 @@
   #define MCU_API_EXTERN   extern
 #endif
 
-
-#define LIGHT_ON {}
-#define LIGHT_OFF {}
-/*****************************************************************************
-º¯ÊıÃû³Æ : hex_to_bcd
-¹¦ÄÜÃèÊö : hex×ªbcd
-ÊäÈë²ÎÊı : Value_H:¸ß×Ö½Ú/Value_L:µÍ×Ö½Ú
-·µ»Ø²ÎÊı : bcd_value:×ª»»Íê³ÉºóÊı¾İ
-*****************************************************************************/
+/**
+ * @brief  hexè½¬bcd
+ * @param[in] {Value_H} é«˜å­—èŠ‚
+ * @param[in] {Value_L} ä½å­—èŠ‚
+ * @return è½¬æ¢å®Œæˆåæ•°æ®
+ */
 unsigned char hex_to_bcd(unsigned char Value_H,unsigned char Value_L);
-/*****************************************************************************
-º¯ÊıÃû³Æ : my_strlen
-¹¦ÄÜÃèÊö : Çó×Ö·û´®³¤¶È
-ÊäÈë²ÎÊı :
-·µ»Ø²ÎÊı :
-*****************************************************************************/
+
+/**
+ * @brief  æ±‚å­—ç¬¦ä¸²é•¿åº¦
+ * @param[in] {str} å­—ç¬¦ä¸²åœ°å€
+ * @return æ•°æ®é•¿åº¦
+ */
 unsigned long my_strlen(unsigned char *str);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : my_memset
-¹¦ÄÜÃèÊö : °ÑsrcËùÖ¸ÄÚ´æÇøÓòµÄÇ°count¸ö×Ö½ÚÉèÖÃ³É×Ö·ûc
-ÊäÈë²ÎÊı :
-·µ»Ø²ÎÊı :
-*****************************************************************************/
+/**
+ * @brief  æŠŠsrcæ‰€æŒ‡å†…å­˜åŒºåŸŸçš„å‰countä¸ªå­—èŠ‚è®¾ç½®æˆå­—ç¬¦c
+ * @param[out] {src} å¾…è®¾ç½®çš„å†…å­˜é¦–åœ°å€
+ * @param[in] {ch} è®¾ç½®çš„å­—ç¬¦
+ * @param[in] {count} è®¾ç½®çš„å†…å­˜é•¿åº¦
+ * @return å¾…è®¾ç½®çš„å†…å­˜é¦–åœ°å€
+ */
 void *my_memset(void *src,unsigned char ch,unsigned short count);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mymemcpy
-¹¦ÄÜÃèÊö : ÄÚ´æ¿½±´
-ÊäÈë²ÎÊı :
-·µ»Ø²ÎÊı :
-*****************************************************************************/
+/**
+ * @brief  å†…å­˜æ‹·è´
+ * @param[out] {dest} ç›®æ ‡åœ°å€
+ * @param[in] {src} æºåœ°å€
+ * @param[in] {count} æ‹·è´æ•°æ®ä¸ªæ•°
+ * @return æ•°æ®å¤„ç†å®Œåçš„æºåœ°å€
+ */
 void *my_memcpy(void *dest, const void *src, unsigned short count);
-/*****************************************************************************
 
-º¯ÊıÃû³Æ : int_to_byte
-¹¦ÄÜÃèÊö : ½«intÀàĞÍ²ğ·ÖËÄ¸ö×Ö½Ú
-ÊäÈë²ÎÊı : number:4×Ö½ÚÔ­Êı¾İ;value:´¦ÀíÍê³Éºó4×Ö½ÚÊı¾İ
-·µ»Ø²ÎÊı :ÎŞ
-****************************************************************************/
+/**
+ * @brief  å­—ç¬¦ä¸²æ‹·è´
+ * @param[in] {dest} ç›®æ ‡åœ°å€
+ * @param[in] {src} æºåœ°å€
+ * @return æ•°æ®å¤„ç†å®Œåçš„æºåœ°å€
+ */
+char *my_strcpy(char *dest, const char *src);
+
+/**
+ * @brief  å­—ç¬¦ä¸²æ¯”è¾ƒ
+ * @param[in] {s1} å­—ç¬¦ä¸² 1
+ * @param[in] {s2} å­—ç¬¦ä¸² 2
+ * @return å¤§å°æ¯”è¾ƒå€¼
+ * -         0:s1=s2
+ * -         <0:s1<s2
+ * -         >0:s1>s2
+ */
+int my_strcmp(char *s1 , char *s2);
+
+/**
+ * @brief  å°†intç±»å‹æ‹†åˆ†å››ä¸ªå­—èŠ‚
+ * @param[in] {number} 4å­—èŠ‚åŸæ•°æ®
+ * @param[out] {value} å¤„ç†å®Œæˆå4å­—èŠ‚æ•°æ®
+ * @return Null
+ */
 void int_to_byte(unsigned long number,unsigned char value[4]);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : byte_to_int
-¹¦ÄÜÃèÊö : ½«4×Ö½ÚºÏ²¢Îª1¸ö32bit±äÁ¿
-ÊäÈë²ÎÊı : value:4×Ö½ÚÊı×é
-·µ»Ø²ÎÊı : number:ºÏ²¢Íê³ÉºóµÄ32bit±äÁ¿
-****************************************************************************/
+/**
+ * @brief  å°†4å­—èŠ‚åˆå¹¶ä¸º1ä¸ª32bitå˜é‡
+ * @param[in] {value} 4å­—èŠ‚æ•°ç»„
+ * @return åˆå¹¶å®Œæˆåçš„32bitå˜é‡
+ */
 unsigned long byte_to_int(const unsigned char value[4]);
 
-#ifndef BT_CONTROL_SELF_MODE
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_get_reset_bt_flag
-¹¦ÄÜÃèÊö : MCU»ñÈ¡¸´Î»bt³É¹¦±êÖ¾
-ÊäÈë²ÎÊı : ÎŞ
-·µ»Ø²ÎÊı : ¸´Î»±êÖ¾:RESET_BT_ERROR:Ê§°Ü/RESET_BT_SUCCESS:³É¹¦
-Ê¹ÓÃËµÃ÷ : 1:MCUÖ÷¶¯µ÷ÓÃmcu_reset_bt()ºóµ÷ÓÃ¸Ãº¯Êı»ñÈ¡¸´Î»×´Ì¬
-           2:Èç¹ûÎªÄ£¿é×Ô´¦ÀíÄ£Ê½,MCUÎŞĞëµ÷ÓÃ¸Ãº¯Êı
-*****************************************************************************/
-unsigned char mcu_get_reset_bt_flag(void);
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_reset_bt
-¹¦ÄÜÃèÊö : MCUÖ÷¶¯ÖØÖÃbt¹¤×÷Ä£Ê½
-ÊäÈë²ÎÊı : ÎŞ
-·µ»Ø²ÎÊı : ÎŞ
-Ê¹ÓÃËµÃ÷ : 1:MCUÖ÷¶¯µ÷ÓÃ,Í¨¹ımcu_get_reset_bt_flag()º¯Êı»ñÈ¡ÖØÖÃbtÊÇ·ñ³É¹¦
-           2:Èç¹ûÎªÄ£¿é×Ô´¦ÀíÄ£Ê½,MCUÎŞĞëµ÷ÓÃ¸Ãº¯Êı
-*****************************************************************************/
-void mcu_reset_bt(void);
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_get_bt_work_state
-¹¦ÄÜÃèÊö : MCUÖ÷¶¯»ñÈ¡µ±Ç°bt¹¤×÷×´Ì¬
-ÊäÈë²ÎÊı : ÎŞ
-·µ»Ø²ÎÊı : BT_WORK_SATE_E:
-          SMART_CONFIG_STATE:smartconfigÅäÖÃ×´Ì¬
-          AP_STATE:AP ÅäÖÃ×´Ì¬
-          BT_NOT_CONNECTED:BT ÅäÖÃ³É¹¦µ«Î´Á¬ÉÏÂ·ÓÉÆ÷
-          BT_CONNECTED:BT ÅäÖÃ³É¹¦ÇÒÁ¬ÉÏÂ·ÓÉÆ÷
-Ê¹ÓÃËµÃ÷ : ÎŞ
-*****************************************************************************/
-unsigned char mcu_get_bt_work_state(void);
-#endif
-
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_dp_raw_update
-¹¦ÄÜÃèÊö : rawĞÍdpÊı¾İÉÏ´«
-ÊäÈë²ÎÊı : dpid:idºÅ
-           value:µ±Ç°dpÖµÖ¸Õë
-           len:Êı¾İ³¤¶È
-·µ»Ø²ÎÊı : ÎŞ
-*****************************************************************************/
+/**
+ * @brief  rawå‹dpæ•°æ®ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @param[in] {len} æ•°æ®é•¿åº¦
+ * @return Null
+ * @note   Null
+ */
 unsigned char mcu_dp_raw_update(unsigned char dpid,const unsigned char value[],unsigned short len);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_dp_bool_update
-¹¦ÄÜÃèÊö : boolĞÍdpÊı¾İÉÏ´«
-ÊäÈë²ÎÊı : dpid:idºÅ
-           value:µ±Ç°dpÖµ
-·µ»Ø²ÎÊı : ÎŞ
-*****************************************************************************/
+/**
+ * @brief  boolå‹dpæ•°æ®ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼
+ * @return Null
+ * @note   Null
+ */
 unsigned char mcu_dp_bool_update(unsigned char dpid,unsigned char value);
-unsigned char mcu_dp_bool_mesh_update(unsigned char dpid,unsigned char value,unsigned int groupa);
-unsigned char mcu_dp_enum_mesh_update(unsigned char dpid,unsigned char value,unsigned int groupa);
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_dp_value_update
-¹¦ÄÜÃèÊö : valueĞÍdpÊı¾İÉÏ´«
-ÊäÈë²ÎÊı : dpid:idºÅ
-           value:µ±Ç°dpÖµ
-·µ»Ø²ÎÊı : ÎŞ
-*****************************************************************************/
+
+/**
+ * @brief  valueå‹dpæ•°æ®ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼
+ * @return Null
+ * @note   Null
+ */
 unsigned char mcu_dp_value_update(unsigned char dpid,unsigned long value);
-unsigned char mcu_dp_value_mesh_update(unsigned char dpid,unsigned long value,unsigned int groupa);
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_dp_string_update
-¹¦ÄÜÃèÊö : rstringĞÍdpÊı¾İÉÏ´«
-ÊäÈë²ÎÊı : dpid:idºÅ
-           value:µ±Ç°dpÖµÖ¸Õë
-           len:Êı¾İ³¤¶È
-·µ»Ø²ÎÊı : ÎŞ
-*****************************************************************************/
+
+/**
+ * @brief  stringå‹dpæ•°æ®ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @param[in] {len} æ•°æ®é•¿åº¦
+ * @return Null
+ * @note   Null
+ */
 unsigned char mcu_dp_string_update(unsigned char dpid,const unsigned char value[],unsigned short len);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_dp_enum_update
-¹¦ÄÜÃèÊö : enumĞÍdpÊı¾İÉÏ´«
-ÊäÈë²ÎÊı : dpid:idºÅ
-           value:µ±Ç°dpÖµ
-·µ»Ø²ÎÊı : ÎŞ
-*****************************************************************************/
+/**
+ * @brief  enumå‹dpæ•°æ®ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼
+ * @return Null
+ * @note   Null
+ */
 unsigned char mcu_dp_enum_update(unsigned char dpid,unsigned char value);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_dp_fault_update
-¹¦ÄÜÃèÊö : faultĞÍdpÊı¾İÉÏ´«
-ÊäÈë²ÎÊı : dpid:idºÅ
-           value:µ±Ç°dpÖµ
-·µ»Ø²ÎÊı : ÎŞ
-*****************************************************************************/
+/**
+ * @brief  faultå‹dpæ•°æ®ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼
+ * @return Null
+ * @note   Null
+ */
 unsigned char mcu_dp_fault_update(unsigned char dpid,unsigned long value);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_get_dp_download_bool
-¹¦ÄÜÃèÊö : mcu»ñÈ¡boolĞÍÏÂ·¢dpÖµ
-ÊäÈë²ÎÊı : value:dpÊı¾İ»º³åÇøµØÖ·
-           length:dpÊı¾İ³¤¶È
-·µ»Ø²ÎÊı : bool:µ±Ç°dpÖµ
-*****************************************************************************/
+#ifdef MCU_DP_UPLOAD_SYN
+/**
+ * @brief  rawå‹dpæ•°æ®åŒæ­¥ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @param[in] {len} æ•°æ®é•¿åº¦
+ * @return Null
+ * @note   Null
+ */
+unsigned char mcu_dp_raw_update_syn(unsigned char dpid,const unsigned char value[],unsigned short len);
+
+/**
+ * @brief  boolå‹dpæ•°æ®åŒæ­¥ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @return Null
+ * @note   Null
+ */
+unsigned char mcu_dp_bool_update_syn(unsigned char dpid,unsigned char value);
+
+/**
+ * @brief  valueå‹dpæ•°æ®åŒæ­¥ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @return Null
+ * @note   Null
+ */
+unsigned char mcu_dp_value_update_syn(unsigned char dpid,unsigned long value);
+
+/**
+ * @brief  stringå‹dpæ•°æ®åŒæ­¥ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @param[in] {len} æ•°æ®é•¿åº¦
+ * @return Null
+ * @note   Null
+ */
+unsigned char mcu_dp_string_update_syn(unsigned char dpid,const unsigned char value[],unsigned short len);
+
+/**
+ * @brief  enumå‹dpæ•°æ®åŒæ­¥ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @return Null
+ * @note   Null
+ */
+unsigned char mcu_dp_enum_update_syn(unsigned char dpid,unsigned char value);
+
+/**
+ * @brief  faultå‹dpæ•°æ®åŒæ­¥ä¸Šä¼ 
+ * @param[in] {dpid} dpidå·
+ * @param[in] {value} å½“å‰dpå€¼æŒ‡é’ˆ
+ * @return Null
+ * @note   Null
+ */
+unsigned char mcu_dp_fault_update_syn(unsigned char dpid,unsigned long value);
+#endif
+
+/**
+ * @brief  mcuè·å–boolå‹ä¸‹å‘dpå€¼
+ * @param[in] {value} dpæ•°æ®ç¼“å†²åŒºåœ°å€
+ * @param[in] {len} dpæ•°æ®é•¿åº¦
+ * @return å½“å‰dpå€¼
+ * @note   Null
+ */
 unsigned char mcu_get_dp_download_bool(const unsigned char value[],unsigned short len);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_get_dp_download_value
-¹¦ÄÜÃèÊö : mcu»ñÈ¡valueĞÍÏÂ·¢dpÖµ
-ÊäÈë²ÎÊı : value:dpÊı¾İ»º³åÇøµØÖ·
-           length:dpÊı¾İ³¤¶È
-·µ»Ø²ÎÊı : value:µ±Ç°dpÖµ
-*****************************************************************************/
+/**
+ * @brief  mcuè·å–valueå‹ä¸‹å‘dpå€¼
+ * @param[in] {value} dpæ•°æ®ç¼“å†²åŒºåœ°å€
+ * @param[in] {len} dpæ•°æ®é•¿åº¦
+ * @return å½“å‰dpå€¼
+ * @note   Null
+ */
 unsigned long mcu_get_dp_download_value(const unsigned char value[],unsigned short len);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : mcu_get_dp_download_enum
-¹¦ÄÜÃèÊö : mcu»ñÈ¡enumĞÍÏÂ·¢dpÖµ
-ÊäÈë²ÎÊı : value:dpÊı¾İ»º³åÇøµØÖ·
-           length:dpÊı¾İ³¤¶È
-·µ»Ø²ÎÊı : enum:µ±Ç°dpÖµ
-*****************************************************************************/
+/**
+ * @brief  mcuè·å–enumå‹ä¸‹å‘dpå€¼
+ * @param[in] {value} dpæ•°æ®ç¼“å†²åŒºåœ°å€
+ * @param[in] {len} dpæ•°æ®é•¿åº¦
+ * @return å½“å‰dpå€¼
+ * @note   Null
+ */
 unsigned char mcu_get_dp_download_enum(const unsigned char value[],unsigned short len);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ : uart_receive_input
-¹¦ÄÜÃèÊö : ÊÕÊı¾İ´¦Àí
-ÊäÈë²ÎÊı : value:´®¿ÚÊÕµ½×Ö½ÚÊı¾İ
-·µ»Ø²ÎÊı : ÎŞ
-Ê¹ÓÃËµÃ÷ : ÔÚMCU´®¿Ú´¦Àíº¯ÊıÖĞµ÷ÓÃ¸Ãº¯Êı,²¢½«½ÓÊÕµ½µÄÊı¾İ×÷Îª²ÎÊı´«Èë
-*****************************************************************************/
+/**
+ * @brief  ä¸²å£æ¥æ”¶æ•°æ®æš‚å­˜å¤„ç†
+ * @param[in] {value} ä¸²å£æ”¶åˆ°çš„1å­—èŠ‚æ•°æ®
+ * @return Null
+ * @note   åœ¨MCUä¸²å£å¤„ç†å‡½æ•°ä¸­è°ƒç”¨è¯¥å‡½æ•°,å¹¶å°†æ¥æ”¶åˆ°çš„æ•°æ®ä½œä¸ºå‚æ•°ä¼ å…¥
+ */
 void uart_receive_input(unsigned char value);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ  : bt_uart_service
-¹¦ÄÜÃèÊö  : bt´®¿Ú´¦Àí·şÎñ
-ÊäÈë²ÎÊı : ÎŞ
-·µ»Ø²ÎÊı : ÎŞ
-Ê¹ÓÃËµÃ÷ : ÔÚMCUÖ÷º¯ÊıwhileÑ­»·ÖĞµ÷ÓÃ¸Ãº¯Êı
-*****************************************************************************/
-void bt_uart_service(void);
+/**
+ * @brief  wifiä¸²å£æ•°æ®å¤„ç†æœåŠ¡
+ * @param  Null
+ * @return Null
+ * @note   åœ¨MCUä¸»å‡½æ•°whileå¾ªç¯ä¸­è°ƒç”¨è¯¥å‡½æ•°
+ */
+void wifi_uart_service(void);
 
-/*****************************************************************************
-º¯ÊıÃû³Æ :  bt_protocol_init
-¹¦ÄÜÃèÊö : Ğ­Òé´®¿Ú³õÊ¼»¯º¯Êı
-ÊäÈë²ÎÊı : ÎŞ
-·µ»Ø²ÎÊı : ÎŞ
-Ê¹ÓÃËµÃ÷ : ÔÚMCU³õÊ¼»¯´úÂëÖĞµ÷ÓÃ¸Ãº¯Êı
-*****************************************************************************/
-void bt_protocol_init(void);
-/*****************************************************************************
-º¯ÊıÃû³Æ : uart_transmit_output
-¹¦ÄÜÃèÊö : ·¢Êı¾İ´¦Àí
-ÊäÈë²ÎÊı : value:´®¿ÚÊÕµ½×Ö½ÚÊı¾İ
-·µ»Ø²ÎÊı : ÎŞ
-Ê¹ÓÃËµÃ÷ : Çë½«MCU´®¿Ú·¢ËÍº¯ÊıÌîÈë¸Ãº¯ÊıÄÚ,²¢½«½ÓÊÕµ½µÄÊı¾İ×÷Îª²ÎÊı´«Èë´®¿Ú·¢ËÍº¯Êı
-*****************************************************************************/
-void uart_transmit_output(unsigned char value);
+/**
+ * @brief  åè®®ä¸²å£åˆå§‹åŒ–å‡½æ•°
+ * @param  Null
+ * @return Null
+ * @note   åœ¨MCUåˆå§‹åŒ–ä»£ç ä¸­è°ƒç”¨è¯¥å‡½æ•°
+ */
+void wifi_protocol_init(void);
+
+#ifndef WIFI_CONTROL_SELF_MODE
+/**
+ * @brief  MCUè·å–å¤ä½wifiæˆåŠŸæ ‡å¿—
+ * @param  Null
+ * @return å¤ä½æ ‡å¿—
+ * -           0(RESET_WIFI_ERROR):å¤±è´¥
+ * -           1(RESET_WIFI_SUCCESS):æˆåŠŸ
+ * @note   1:MCUä¸»åŠ¨è°ƒç”¨mcu_reset_wifi()åè°ƒç”¨è¯¥å‡½æ•°è·å–å¤ä½çŠ¶æ€
+ *         2:å¦‚æœä¸ºæ¨¡å—è‡ªå¤„ç†æ¨¡å¼,MCUæ— é¡»è°ƒç”¨è¯¥å‡½æ•°
+ */
+unsigned char mcu_get_reset_wifi_flag(void);
+
+/**
+ * @brief  MCUä¸»åŠ¨é‡ç½®wifiå·¥ä½œæ¨¡å¼
+ * @param  Null
+ * @return Null
+ * @note   1:MCUä¸»åŠ¨è°ƒç”¨,é€šè¿‡mcu_get_reset_wifi_flag()å‡½æ•°è·å–é‡ç½®wifiæ˜¯å¦æˆåŠŸ
+ *         2:å¦‚æœä¸ºæ¨¡å—è‡ªå¤„ç†æ¨¡å¼,MCUæ— é¡»è°ƒç”¨è¯¥å‡½æ•°
+ */
+void mcu_reset_wifi(void);
+
+/**
+ * @brief  è·å–è®¾ç½®wifiçŠ¶æ€æˆåŠŸæ ‡å¿—
+ * @param  Null
+ * @return wifimode flag
+ * -           0(SET_WIFICONFIG_ERROR):å¤±è´¥
+ * -           1(SET_WIFICONFIG_SUCCESS):æˆåŠŸ
+ * @note   1:MCUä¸»åŠ¨è°ƒç”¨mcu_set_wifi_mode()åè°ƒç”¨è¯¥å‡½æ•°è·å–å¤ä½çŠ¶æ€
+ *         2:å¦‚æœä¸ºæ¨¡å—è‡ªå¤„ç†æ¨¡å¼,MCUæ— é¡»è°ƒç”¨è¯¥å‡½æ•°
+ */
+unsigned char mcu_get_wifimode_flag(void);
+
+/**
+ * @brief  MCUè®¾ç½®wifiå·¥ä½œæ¨¡å¼
+ * @param[in] {mode} è¿›å…¥çš„æ¨¡å¼
+ * @ref        0(SMART_CONFIG):è¿›å…¥smartconfigæ¨¡å¼
+ * @ref        1(AP_CONFIG):è¿›å…¥APæ¨¡å¼
+ * @return Null
+ * @note   1:MCUä¸»åŠ¨è°ƒç”¨
+ *         2:æˆåŠŸå,å¯åˆ¤æ–­set_wifi_config_stateæ˜¯å¦ä¸ºTRUE;TRUEè¡¨ç¤ºä¸ºè®¾ç½®wifiå·¥ä½œæ¨¡å¼æˆåŠŸ
+ *         3:å¦‚æœä¸ºæ¨¡å—è‡ªå¤„ç†æ¨¡å¼,MCUæ— é¡»è°ƒç”¨è¯¥å‡½æ•°
+ */
+void mcu_set_wifi_mode(unsigned char mode);
+
+/**
+ * @brief  MCUä¸»åŠ¨è·å–å½“å‰wifiå·¥ä½œçŠ¶æ€
+ * @param  Null
+ * @return wifi work state
+ * -          SMART_CONFIG_STATE: smartconfigé…ç½®çŠ¶æ€
+ * -          AP_STATE: APé…ç½®çŠ¶æ€
+ * -          WIFI_NOT_CONNECTED: WIFIé…ç½®æˆåŠŸä½†æœªè¿ä¸Šè·¯ç”±å™¨
+ * -          WIFI_CONNECTED: WIFIé…ç½®æˆåŠŸä¸”è¿ä¸Šè·¯ç”±å™¨
+ * -          WIFI_CONN_CLOUD: WIFIå·²ç»è¿æ¥ä¸Šäº‘æœåŠ¡å™¨
+ * -          WIFI_LOW_POWER: WIFIå¤„äºä½åŠŸè€—æ¨¡å¼
+ * -          SMART_AND_AP_STATE: WIFI smartconfig&AP æ¨¡å¼
+ * @note   å¦‚æœä¸ºæ¨¡å—è‡ªå¤„ç†æ¨¡å¼,MCUæ— é¡»è°ƒç”¨è¯¥å‡½æ•°
+ */
+unsigned char mcu_get_wifi_work_state(void);
+#endif
+
+#ifdef SUPPORT_GREEN_TIME
+/**
+ * @brief  MCUè·å–æ ¼æ—æ—¶é—´
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_get_green_time(void);
+#endif
+
+#ifdef SUPPORT_MCU_RTC_CHECK
+/**
+ * @brief  MCUè·å–ç³»ç»Ÿæ—¶é—´,ç”¨äºæ ¡å¯¹æœ¬åœ°æ—¶é’Ÿ
+ * @param  Null
+ * @return Null
+ * @note   MCUä¸»åŠ¨è°ƒç”¨å®Œæˆååœ¨mcu_write_rtctimeå‡½æ•°å†…æ ¡å¯¹rtcæ—¶é’Ÿ
+ */
+void mcu_get_system_time(void);
+#endif
+
+#ifdef WIFI_TEST_ENABLE
+/**
+ * @brief  mcuå‘èµ·wifiåŠŸèƒ½æµ‹è¯•
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_start_wifitest(void);
+#endif
+
+#ifdef WIFI_HEARTSTOP_ENABLE
+/**
+ * @brief  é€šçŸ¥WIFIæ¨¡ç»„å…³é—­å¿ƒè·³
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void wifi_heart_stop(void);
+#endif
+
+#ifdef GET_WIFI_STATUS_ENABLE
+/**
+ * @brief  è·å–å½“å‰wifiè”ç½‘çŠ¶æ€
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_get_wifi_connect_status(void);
+#endif
+
+#ifdef WIFI_STREAM_ENABLE
+/**
+ * @brief  æµæœåŠ¡å‘é€
+ * @param[in] {id} IDå·
+ * @param[in] {buffer} å‘é€åŒ…çš„åœ°å€
+ * @param[in] {buf_len} å‘é€åŒ…é•¿åº¦
+ * @return æµæœåŠ¡ä¼ è¾“ç»“æœ
+ * -           0(ERROR): å¤±è´¥
+ * -           1(SUCCESS): æˆåŠŸ
+ * @note   MCUéœ€è¦è‡ªè¡Œå®ç°è¯¥åŠŸèƒ½
+ */
+unsigned char stream_trans_send(unsigned int id, unsigned char *buffer, unsigned long buf_len);
+
+/**
+ * @brief  å¤šåœ°å›¾æµæœåŠ¡å‘é€
+ * @param[in] {id} åœ°å›¾æµæœåŠ¡ä¼šè¯ID
+ * @param[in] {sub_id} å­åœ°å›¾ID
+ * @param[in] {sub_id_pro_mode} å­åœ°å›¾IDæ•°æ®å¤„ç†æ–¹å¼
+ * @ref       0x00: ç»§ç»­ç´¯åŠ 
+ * @ref       0x01: æ¸…é™¤ä¸Šä¼ çš„æ•°æ®
+ * @param[in] {buffer} æ•°æ®åŒ…å‘é€çš„åœ°å€
+ * @param[in] {buf_len} æ•°æ®åŒ…å‘é€çš„é•¿åº¦
+ * @return æµæœåŠ¡ä¼ è¾“ç»“æœ
+ * -           0(ERROR): å¤±è´¥
+ * -           1(SUCCESS): æˆåŠŸ
+ * @note   MCUéœ€è¦è‡ªè¡Œå®ç°è¯¥åŠŸèƒ½
+ */
+unsigned char maps_stream_trans_send(unsigned int id, unsigned char sub_id, unsigned char sub_id_pro_mode, unsigned char *buffer, unsigned long buf_len);
+#endif
+
+#ifdef WIFI_CONNECT_TEST_ENABLE
+/**
+ * @brief  mcuå‘èµ·wifiåŠŸèƒ½æµ‹è¯•(è¿æ¥æŒ‡å®šè·¯ç”±)
+ * @param[in] {ssid_buf} å­˜æ”¾è·¯ç”±å™¨åç§°å­—ç¬¦ä¸²æ•°æ®çš„åœ°å€(ssidé•¿åº¦æœ€å¤§æ”¯æŒ32ä¸ªå­—èŠ‚)
+ * @param[in] {passwd_buffer} å­˜æ”¾è·¯ç”±å™¨åç§°å­—ç¬¦ä¸²æ•°æ®çš„åœ°å€(passwdé•¿åº¦æœ€å¤§æ”¯æŒ64ä¸ªå­—èŠ‚)
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_start_connect_wifitest(unsigned char *ssid_buf,unsigned char *passwd_buffer);
+#endif
+
+#ifdef GET_MODULE_MAC_ENABLE
+/**
+ * @brief  è·å–æ¨¡å—MAC
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_get_module_mac(void);
+#endif
+
+#ifdef IR_TX_RX_TEST_ENABLE
+/**
+ * @brief  mcuå‘èµ·çº¢å¤–è¿›å…¥æ”¶å‘äº§æµ‹
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_start_ir_test(void);
+#endif
+
+#ifdef MODULE_EXPANDING_SERVICE_ENABLE
+/**
+ * @brief  æ‰“å¼€æ¨¡å—æ—¶é—´æœåŠ¡é€šçŸ¥
+ * @param[in] {time_type} æ—¶é—´ç±»å‹
+ * @ref       0x00: æ ¼æ—æ—¶é—´
+ * @ref       0x01: æœ¬åœ°æ—¶é—´
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void open_module_time_serve(unsigned char time_type);
+
+/**
+ * @brief  ä¸»åŠ¨è¯·æ±‚å¤©æ°”æœåŠ¡æ•°æ®
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void request_weather_serve(void);
+
+/**
+ * @brief  æ‰“å¼€æ¨¡å—é‡ç½®çŠ¶æ€é€šçŸ¥
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void open_module_reset_state_serve(void);
+#endif
+
+#ifdef BLE_RELATED_FUNCTION_ENABLE
+/**
+ * @brief  mcuå‘èµ·è“ç‰™åŠŸèƒ½æ€§æµ‹è¯•ï¼ˆæ‰«ææŒ‡å®šè“ç‰™ä¿¡æ ‡ï¼‰
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void mcu_start_BLE_test(void);
+#endif
+
+#ifdef VOICE_MODULE_PROTOCOL_ENABLE
+/**
+ * @brief  è·å–è¯­éŸ³çŠ¶æ€ç 
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void get_voice_state(void);
+
+/**
+ * @brief  MICé™éŸ³è®¾ç½®
+ * @param[in] {set_val} é™éŸ³è®¾ç½®å€¼
+ * @ref       0x00: micå¼€å¯
+ * @ref       0x01: micé™éŸ³
+ * @ref       0xA0: æŸ¥è¯¢é™éŸ³çŠ¶æ€
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void set_voice_MIC_silence(unsigned char set_val);
+
+/**
+ * @brief  speakeréŸ³é‡è®¾ç½®
+ * @param[in] {set_val} éŸ³é‡è®¾ç½®å€¼
+ * @ref       0~10: éŸ³é‡èŒƒå›´
+ * @ref       0xA0: æŸ¥è¯¢éŸ³é‡å€¼
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void set_speaker_voice(unsigned char set_val);
+
+/**
+ * @brief  éŸ³é¢‘äº§æµ‹
+ * @param[in] {set_val} éŸ³é¢‘äº§æµ‹å€¼
+ * @ref       0x00: å…³é—­éŸ³é¢‘äº§æµ‹
+ * @ref       0x01: mic1éŸ³é¢‘ç¯è·¯æµ‹è¯•
+ * @ref       0x02: mic2éŸ³é¢‘ç¯è·¯æµ‹è¯•
+ * @ref       0xA0: æŸ¥è¯¢å½“å‰äº§æµ‹çŠ¶æ€
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void voice_test(unsigned char test_val);
+
+/**
+ * @brief  å”¤é†’äº§æµ‹
+ * @param  Null
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void voice_awaken_test(void);
+
+/**
+ * @brief  è¯­éŸ³æ¨¡ç»„MCUåŠŸèƒ½è®¾ç½®
+ * @param[in] {play} æ’­æ”¾/æš‚åœåŠŸèƒ½ 1(æ’­æ”¾) / 0(æš‚åœ)
+ * @param[in] {bt_play} è“ç‰™å¼€å…³åŠŸèƒ½ 1(å¼€) / 0(å…³)
+ * @return Null
+ * @note   MCUéœ€è¦è‡ªè¡Œè°ƒç”¨è¯¥åŠŸèƒ½
+ */
+void voice_mcu_fun_set(unsigned char play, unsigned char bt_play);
+#endif
 
 #endif
