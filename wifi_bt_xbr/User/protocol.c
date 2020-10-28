@@ -64,13 +64,13 @@ void Delay_us_1(uint q1);
 
 void reset_bt_module(void)
 {
-	//send_data(0x55);//p15，重置模块
-	//send_data(0xAA);
-	//send_data(0x00);
-	//send_data(0x04);
-	//send_data(0x00);
-	//send_data(0x00);
-	//send_data(0x03);
+    send_data(0x55);//p5，重置模块
+    send_data(0xAA);
+    send_data(0x03);
+    send_data(0x04);
+    send_data(0x00);
+    send_data(0x00);
+    send_data(0x06);
 }
 
 /******************************************************************************
@@ -316,7 +316,7 @@ static unsigned char dp_download_bright_value_handle(const unsigned char value[]
 	
     lightvalue = bright_value;
 
-	if(SWITCHfXBR==0)
+	//if(SWITCHfXBR==0)
 	{
 		XRBoffbrightvalue = bright_value;
 	}
