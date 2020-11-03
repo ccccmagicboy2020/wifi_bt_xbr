@@ -1195,7 +1195,7 @@ void reset_bt_module(void);
 ***************************************************************************************/
 void main()
 {
-//	u8 i;
+	u8 i;
 	wifi_protocol_init(); //mcu_sdk
 	InitSYS();
 	GPIO_Init();
@@ -1266,7 +1266,7 @@ void main()
 		if (resetbtcnt >= 3)	//行为是每三次上电会复位一次蓝牙模块
 		{
 			resetbtcnt = 0;
-			//reset_bt_module();
+			reset_bt_module();
 		}
 
 //		if (check_group_count <= 2) //一上电间隔一秒获取3次群组地址
@@ -1347,19 +1347,19 @@ void main()
 			//联动
 			if (Linkage_flag == 1)
 			{
-//				if (Light_on_flagpre != Light_on_flag)
-//				{
-//					Light_on_flagpre = Light_on_flag;
-//					LIGHT = 1;
-//					//PWM3init(100);
-//					for (i = 0; i < 8; i++)
-//					{
-//						if (groupaddr[i] != 0)
-//						{
-//							mcu_dp_bool_mesh_update(DPID_SWITCH_LED2, SWITCHflag2, groupaddr[i]);
-//						}
-//					}
-//				}
+				if (Light_on_flagpre != Light_on_flag)
+				{
+					Light_on_flagpre = Light_on_flag;
+					LIGHT = 1;
+					//PWM3init(100);
+					for (i = 0; i < 8; i++)
+					{
+						if (groupaddr[i] != 0)
+						{
+							//mcu_dp_bool_mesh_update(DPID_SWITCH_LED2, SWITCHflag2, groupaddr[i]);
+						}
+					}
+				}
 			}
 		}
 		else
