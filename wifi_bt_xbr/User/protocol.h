@@ -288,6 +288,9 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //雷达触发计数(只上报)
 //备注:
 #define DPID_RADAR_TRIGGER_TIMES 116
+//计数清零(只下发)
+//备注:
+#define DPID_CLEAR_TRIGGER_NUMBER 117
 
 
 
