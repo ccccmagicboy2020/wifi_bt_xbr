@@ -3,7 +3,7 @@
 //#include "Mcu_api.h"
 #include "wifi.h"
 
-#define V12 //硬件板卡的版本
+#define XBR403 //硬件板卡的版本
 //#define V10
 
 //#define  VERSION  0X21
@@ -286,7 +286,7 @@ void ADC_Init()
 	ADCC0 |= 0x03; //参考源为内部2V
 	ADCC0 |= 0x80; //打开ADC转换电源
 	Delay_us(20);  //延时20us，确保ADC系统稳定
-	ADCC1 = 0x01;  //选择外部通道1
+	ADCC1 = 0x02;  //选择外部通道2
 	ADCC2 = 0x4B;  //8分频	  //转换结果12位数据，数据右对齐，ADC时钟16分频-1MHZ//0X4B-8分频//0X49-4分频
 }
 
@@ -337,7 +337,10 @@ void GPIO_Init()
 
 #ifdef V12
 
-	P1M0 = P1M0 & 0xF0 | 0x08; //P10设置为推挽输出
+	P1M0 = P1M0 & 0xFF | 0x88; //P10设置为推挽输出
+							   //P11设置为推挽输出
+							   
+							   
 
 	P0M0 = P0M0 & 0x0F | 0x30; //P01设置为模拟输入
 
@@ -352,6 +355,17 @@ void GPIO_Init()
 
 	//	P0M3 = P0M3&0x0F|0x20;				  //P07设置为上拉输入
 
+#endif
+
+#ifdef XBR403
+	//PWM & ADC
+	P1M0 = P1M0 & 0xF0 | 0x08; //P10设置为推挽输出
+	P0M0 = P0M0 & 0xFF | 0x88; //P00设置为推挽输出
+							   //P01设置为推挽输出
+	P0M1 = P0M1 & 0xFF | 0x83; //P03设置为推挽输出
+							   //P02设置为模拟输入
+	P0M3 = P0M3 & 0xF0 | 0x08; //P06设置为推挽输出
+	P2M1 = P2M1 & 0xF0 | 0x03; //P22设置为模拟输入
 #endif
 }
 
@@ -583,7 +597,7 @@ uchar read_ad(uchar ch)
 	}
 
 	//ADC_P14_AN5;
-	ADCC1 = 1; //切换到an1
+	ADCC1 = 2; //切换到an2
 	i = ad_sum >> 8;
 
 	Delay_us(100);
@@ -1154,7 +1168,7 @@ unsigned char PWM3init(unsigned char ab)
 		i11 = ab * 255 / 100;
 		j11 = (unsigned char )(i11 + 0.5);
 	}
-
+	
 #ifdef V11
 	/************************************PWM3初始化****************************************/
 	//P0M3 = P0M3&0xF0|0x08;		//P06设置为推挽输出
@@ -1172,20 +1186,24 @@ unsigned char PWM3init(unsigned char ab)
 
 #endif
 
+#ifdef XBR403
+	PWM3_MAP = 0x10; //PWM3映射P10口
+#endif
+
 	//周期计算 	= 0xFF / (Fosc / PWM分频系数)		（Fosc见系统时钟配置的部分）
 	//			= 0xFF /(16000000 / 4)
 	// 			= 255 /4000000
 	//			= 63.75us		即15.69KHZ
 
-	PWM3P = 0xFF; //PWM周期为0xFF
+	PWM3P = 0xFF; //周期寄存器//PWM周期为0xFF
 	//有效电平时间计算（即占空比）
 	//			= 0x55 / (Fosc / PWM分频系数)		（Fosc见系统时钟配置的部分）
 	//			= 0x55 /(16000000 / 4)
 	// 			= 85 /4000000
 	//			= 21.25us		占空比为 21.25 / 63.75 = 34%
 
-	PWM3D = j11;  //PWM占空比设置
-	PWM3C = 0x94; //使能PWM3，关闭中断，允许输出，时钟16分频
+	PWM3D = j11;  //PWM占空比设置，占空比寄存器p90
+	PWM3C = 0x94; //PWM控制寄存器，使能PWM3，关闭中断，允许输出，时钟16分频
 
 	return 0;
 }
