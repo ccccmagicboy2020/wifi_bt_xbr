@@ -27,7 +27,7 @@
 /******************************************************************************
                        1:修改产品信息
 ******************************************************************************/
-#define PRODUCT_KEY "7bajij0yumokyofv"    //开发平台创建产品后生成的16位字符产品唯一标识
+#define PRODUCT_KEY "qgkj5ymcgrapjgj0"    //开发平台创建产品后生成的16位字符产品唯一标识
 
 #define MCU_VER "1.0.0"         //用户的软件版本,用于MCU固件升级,MCU升级版本需修改
 
@@ -163,7 +163,7 @@ wifi_connect_test_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件wifi_test_result函数内查看结果,
 wifi_test_result内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         GET_WIFI_STATUS_ENABLE                  //开启获取当前WIFI联网状态功能
+#define         GET_WIFI_STATUS_ENABLE                  //开启获取当前WIFI联网状态功能
 
 /******************************************************************************
                       12:MCU是否需要开启获取模块mac地址功能
@@ -171,7 +171,7 @@ wifi_test_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件mcu_get_mac函数内查看结果,
 mcu_get_mac内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         GET_MODULE_MAC_ENABLE                   //开启获取模块mac地址功能
+#define         GET_MODULE_MAC_ENABLE                   //开启获取模块mac地址功能
 
 /******************************************************************************
                       13:MCU是否需要支持获取格林时间功能
@@ -288,6 +288,18 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //雷达触发计数(只上报)
 //备注:
 #define DPID_RADAR_TRIGGER_TIMES 116
+//计数清零(只下发)
+//备注:
+#define DPID_CLEAR_TRIGGER_NUMBER 117
+//灯状态(只上报)
+//备注:
+#define DPID_LIGHT_STATUS 118
+//人状态(只上报)
+//备注:
+#define DPID_PERSON_IN_RANGE 119
+//冷暖(可下发可上报)
+//备注:
+#define DPID_TEMP_SELECT 120
 
 
 

@@ -141,6 +141,10 @@ const DOWNLOAD_CMD_S xdata download_cmd[] =
   {DPID_SWITCH_LINKAGE, DP_TYPE_BOOL},
   {DPID_ALL_DAY_MICRO_LIGHT, DP_TYPE_BOOL},
   {DPID_RADAR_TRIGGER_TIMES, DP_TYPE_VALUE},
+  {DPID_CLEAR_TRIGGER_NUMBER, DP_TYPE_BOOL},
+  {DPID_LIGHT_STATUS, DP_TYPE_ENUM},
+  {DPID_PERSON_IN_RANGE, DP_TYPE_ENUM},
+  {DPID_TEMP_SELECT, DP_TYPE_ENUM},
 };
 
 
@@ -240,7 +244,9 @@ void all_data_update(void)
     mcu_dp_bool_update(DPID_ALL_DAY_MICRO_LIGHT,all_day_micro_light_enable); //BOOL型数据上报;
     mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times); //VALUE型数据上报;
 
-
+    mcu_dp_enum_update(DPID_LIGHT_STATUS,当前灯状态); //枚举型数据上报;
+    mcu_dp_enum_update(DPID_PERSON_IN_RANGE,当前人状态); //枚举型数据上报;
+    mcu_dp_enum_update(DPID_TEMP_SELECT,当前冷暖); //枚举型数据上报;
 }
 
 
@@ -820,6 +826,79 @@ static unsigned char dp_download_all_day_micro_light_handle(const unsigned char 
         return SUCCESS;
     else
         return ERROR;
+
+}
+/*****************************************************************************
+函数名称 : dp_download_clear_trigger_number_handle
+功能描述 : 针对DPID_CLEAR_TRIGGER_NUMBER的处理函数
+输入参数 : value:数据源数据
+        : length:数据长度
+返回参数 : 成功返回:SUCCESS/失败返回:ERROR
+使用说明 : 只下发类型,需要在处理完数据后上报处理结果至app
+*****************************************************************************/
+static unsigned char dp_download_clear_trigger_number_handle(const unsigned char value[], unsigned short length)
+{
+    //示例:当前DP类型为BOOL
+    unsigned char ret;
+    //0:关/1:开
+    unsigned char clear_trigger_number;
+    
+    clear_trigger_number = mcu_get_dp_download_bool(value,length);
+    if(clear_trigger_number == 0) {
+        //开关关
+    }else {
+        //开关开
+    }
+  
+    //处理完DP数据后应有反馈
+    ret = mcu_dp_bool_update(DPID_CLEAR_TRIGGER_NUMBER,clear_trigger_number);
+    if(ret == SUCCESS)
+        return SUCCESS;
+    else
+        return ERROR;
+}
+/*****************************************************************************
+函数名称 : dp_download_temp_select_handle
+功能描述 : 针对DPID_TEMP_SELECT的处理函数
+输入参数 : value:数据源数据
+        : length:数据长度
+返回参数 : 成功返回:SUCCESS/失败返回:ERROR
+使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
+*****************************************************************************/
+static unsigned char dp_download_temp_select_handle(const unsigned char value[], unsigned short length)
+{
+    //示例:当前DP类型为ENUM
+    unsigned char ret;
+    unsigned char temp_select;
+    
+    temp_select = mcu_get_dp_download_enum(value,length);
+    switch(temp_select) {
+        case 0:
+        break;
+        
+        case 1:
+        break;
+        
+        case 2:
+        break;
+        
+        case 3:
+        break;
+        
+        case 4:
+        break;
+        
+        default:
+    
+        break;
+    }
+    
+    //处理完DP数据后应有反馈
+    ret = mcu_dp_enum_update(DPID_TEMP_SELECT, temp_select);
+    if(ret == SUCCESS)
+        return SUCCESS;
+    else
+        return ERROR;
 }
 
 
@@ -898,14 +977,24 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             switchcnt = 0;
         break;
         case DPID_SWITCH_LINKAGE:
-            //联动 处理函数
+            //联动处理函数
             ret = dp_download_switch_linkage_handle(value,length);
             switchcnt = 0;
         break;
         case DPID_ALL_DAY_MICRO_LIGHT:
             //全天伴亮处理函数
             ret = dp_download_all_day_micro_light_handle(value,length);
-            switchcnt = 0;
+			switchcnt = 0;
+        break;
+        case DPID_CLEAR_TRIGGER_NUMBER:
+            //计数清零处理函数
+            ret = dp_download_clear_trigger_number_handle(value,length);
+			switchcnt = 0;
+        break;
+        case DPID_TEMP_SELECT:
+            //冷暖处理函数
+            ret = dp_download_temp_select_handle(value,length);
+			switchcnt = 0;
         break;
 
   default:
@@ -1053,6 +1142,8 @@ void wifi_test_result(unsigned char result,unsigned char rssi)
     }else {
         //测试成功
         //rssi为信号强度(0-100, 0信号最差，100信号最强)
+		//
+		cccc
     }
 }
 #endif
