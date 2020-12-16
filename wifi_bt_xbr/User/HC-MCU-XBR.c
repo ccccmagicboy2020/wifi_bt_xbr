@@ -3,7 +3,11 @@
 //#include "Mcu_api.h"
 #include "wifi.h"
 
-#define XBR403 //硬件板卡的版本
+//#define XBR403 //硬件板卡的版本
+#define XBR403_03_2 //硬件板卡的版本
+#define USER_PARAMETER_START_SECTOR_ADDRESS0 0x2F00
+#define USER_PARAMETER_START_SECTOR_ADDRESS1 0x2F80
+
 //#define V10
 
 //#define  VERSION  0X21
@@ -24,40 +28,12 @@
 #define LIGHT_TH0 255
 //30
 
-//一个检测周期为0.25秒
-//#define DELAY_NUM 20
-
-//#define LIGHT_ON P0_6=0
-//#define LIGHT_OFF P0_6=1
-
-//void Delay_2us(u16 Cnt);		//延时函数
-
-// bit Timer1_FLAG;
-// bit Time_10mS_FLAG;
-// bit Time_100mS_FLAG;
-// bit Time_200mS_FLAG;
-// bit Time_500mS_FLAG;
-// bit Time_1S_FLAG;
-// bit Time_10S_FLAG;
-// bit Time_1Min_FLAG;
-// bit Time_1H_FLAG;
-
 volatile ulong Timer_Counter = 0;
-
-//u8 Uart1_RX_Buff[10] = {0};					 //用于存放UART1接收数据
-//u8 Uart1_RX_Cnt = 0;								 //UART1接收计数
-//u8 Uart1_TX_Buff[20] = {0};					 //用于存放UART1发送数据
-//u8 Uart1_TX_Cnt = 0;								 //UART1发送计数
-
-// u16 AN1_Data = 0;
-// u16 AN7_Data = 0;
-// u8 Uart_Cnt = 0;
 
 u8 xdata SUM1_counter = 0; //???
 u8 xdata SUM0_num = 12;	   //???
 u8 xdata SUM1_num = 64;	   //???
 ulong xdata SUM01;
-//ulong xdata SUM2;		   //调试用
 ulong xdata SUM10 = 0;	   //SUM1值的几次平均值，时间上的滞后值
 ulong xdata SUM0 = 0;	   //
 ulong xdata SUM1 = 0;	   //平均绝对离差的累加合的瞬时值
@@ -78,7 +54,6 @@ uint xdata average;		  //an1的raw平均值
 u8 xdata light_ad;	//光敏实时值raw
 u8 xdata light_ad0; //光敏初始瞬时值raw
 
-u8 xdata check_sum, send_byte;
 u8 xdata check_light_times = 8;	 //用于光敏检查的计数器
 u8 xdata calc_average_times = 0; //用于计算平均值的计数器
 u8 xdata LIGHT_TH;
@@ -99,42 +74,41 @@ volatile u16 xdata lowlight1mincount = 0; //timer的计数器1ms自加
 volatile u8 xdata lowlight1minflag = 0;	  //timer的分钟标志
 volatile u16 idata light1scount = 0;	  //timer的计数器1ms自加
 volatile u16 idata light1sflag = 0;		  //timer的秒标志
-u8 xdata addr = 0;
-u8 xdata devgroup = 0;
-u8 xdata addrend = 0;
-u16 idata groupaddr[8] = {0};
-u8 idata check_group_flag = 0;	//检查群组标志
-u8 idata check_group_count = 0; //检查群组计数器
+
 u8 idata Linkage_flag = 0;
 u8 idata Light_on_flag = 0;
 u8 idata Light_on_flagpre = 0;
+u8 xdata temper_value = 0;			//冷暖值
 
 u8 xdata all_day_micro_light_enable = 0;
 u16 xdata radar_trig_times = 0;
+u16 xdata radar_trig_times_last = 0;
 
-/*
-	 u8 idata groupaddr2 = 0;
-	 u8 idata groupaddr3 = 0;
-	 u8 idata groupaddr4 = 0;
-	 u8 idata groupaddr5 = 0;
-	 u8 idata groupaddr6 = 0;
-	 u8 idata groupaddr7 = 0;
-	 u8 idata groupaddr8 = 0;
-	 */
+u8 xdata light_status_xxx = 0;
+u8 xdata light_status_xxx_last = 0;
+
+u16 xdata radar_number_count = 0;
+u8 xdata radar_number_send_flag = 0;
+u8 xdata radar_number_send_flag2 = 0;
+
+u8 xdata person_in_range_flag = 0;
+u8 xdata person_in_range_flag_last = 0;
+
+u8 idata ab_last = 0;
+volatile u8 idata Exit_network_controlflag = 0;
+u16 xdata Exit_network_controlflag_toggle_counter = 0;
+
+unsigned char PWM0init(unsigned char ab);
+unsigned char PWM3init_xxx(unsigned char ab);
 unsigned char PWM3init(unsigned char ab);
 void Flash_EraseBlock(unsigned int fui_Address); //扇区擦除
-//void FLASH_WriteData(unsigned char fui_Address, unsigned int fuc_SaveData);//写入一个数据
 void FLASH_WriteData(unsigned char fuc_SaveData, unsigned int fui_Address);
-//void Flash_WriteArr(unsigned int fui_Address,unsigned char fuc_Length,unsigned char *fucp_SaveArr);//写入任意长度数据
 void Flash_ReadArr(unsigned int fui_Address, unsigned char fuc_Length, unsigned char *fucp_SaveArr); //读取任意长度数据
 void savevar(void);
+void reset_bt_module(void);
 
-//unsigned char guc_Write_a[5] = {0};	//写入数据
-unsigned char xdata guc_Read_a[10] = {0x00}; //用于存放读取的数据
+unsigned char xdata guc_Read_a[16] = {0x00}; //用于存放读取的数据
 unsigned char xdata guc_Read_a1[1] = {0x00}; //用于存放读取的数据
-// unsigned char guc_Uartflag = 0;					  //发送标志位
-// unsigned char guc_Uartcnt = 0;					  //发送计数
-// unsigned char guc_Uartbuf_a[2] = {0x00};	//缓存数组
 
 void Flash_ReadArr(unsigned int fui_Address, unsigned char fuc_Length, unsigned char *fucp_SaveArr)
 {
@@ -168,15 +142,6 @@ void Delay_us_1(uint q1)
 		;
 	}
 }
-
-// void Delay_ms(uint t)
-// {
-// 	for(;t>0;t--)
-// 	{
-// 		Delay_us_1(1000);
-// 		WDTC |= 0x10;		//清看门狗
-// 	}
-// }
 
 /***************************************************************************************
   * @说明  	系统初始化函数
@@ -286,7 +251,19 @@ void ADC_Init()
 	ADCC0 |= 0x03; //参考源为内部2V
 	ADCC0 |= 0x80; //打开ADC转换电源
 	Delay_us(20);  //延时20us，确保ADC系统稳定
+
+#ifdef XBR403_03_2
+	ADCC1 = 0x00;  //选择外部通道0
+#endif
+	
+#ifdef XBR403
 	ADCC1 = 0x02;  //选择外部通道2
+#endif
+
+#ifdef V12
+	ADCC1 = 0x01;  //选择外部通道1
+#endif
+	
 	ADCC2 = 0x4B;  //8分频	  //转换结果12位数据，数据右对齐，ADC时钟16分频-1MHZ//0X4B-8分频//0X49-4分频
 }
 
@@ -367,6 +344,18 @@ void GPIO_Init()
 	P0M3 = P0M3 & 0xF0 | 0x08; //P06设置为推挽输出
 	P2M1 = P2M1 & 0xF0 | 0x03; //P22设置为模拟输入
 #endif
+
+#ifdef XBR403_03_2
+	 //PWM & ADC
+	 P1M0 = P1M0 & 0x0F | 0x80; //P11  r
+	 P0M0 = P0M0 & 0xF0 | 0x03; //P00  if adc an0
+	 P0M0 = P0M0 & 0x0F | 0x80; //P01  ww
+	 P0M1 = P0M1 & 0xF0 | 0x08; //P02  g
+	 P0M1 = P0M1 & 0x0F | 0x80; //P03  b
+	 P0M3 = P0M3 & 0x0F | 0x30; //P07  light adc an7
+	 P2M3 = P2M3 & 0x0F | 0x80; //P27  cw
+#endif
+
 }
 
 // u16 Read_ADC(u8 Channel)
@@ -598,6 +587,20 @@ uchar read_ad(uchar ch)
 
 	//ADC_P14_AN5;
 	ADCC1 = 2; //切换到an2
+
+
+#ifdef XBR403_03_2
+	ADCC1 = 0x00;  //选择外部通道0
+#endif
+
+#ifdef XBR403
+	ADCC1 = 0x02;  //选择外部通道2
+#endif
+
+#ifdef V12
+	ADCC1 = 0x01;  //选择外部通道1
+#endif
+	
 	i = ad_sum >> 8;
 
 	Delay_us(100);
@@ -607,7 +610,7 @@ uchar read_ad(uchar ch)
 void set_var(void)
 {
 
-	Flash_ReadArr(0X2f00, 10, guc_Read_a); //读取地址0x2F00所在扇区
+	Flash_ReadArr(USER_PARAMETER_START_SECTOR_ADDRESS0, 16, guc_Read_a); //读取地址所在扇区
 
 	TH = guc_Read_a[0];
 	TH <<= 8;
@@ -639,13 +642,16 @@ void set_var(void)
 		lowlightDELAY_NUM = 1;
 
 	SWITCHfXBR = (~guc_Read_a[7]) & 0x01;
-	//	addr = guc_Read_a[7];
+	
+	Linkage_flag = (guc_Read_a[8]) & 0x01;
+	
+	SWITCHflag2 = (guc_Read_a[9]) & 0x01;
+	
+	all_day_micro_light_enable = (guc_Read_a[10]) & 0x01;
+	
+	temper_value = guc_Read_a[11];
 	//
-	//	devgroup = guc_Read_a[8];
-
-	//	addrend = guc_Read_a[9];
-
-	Flash_ReadArr(0X2f80, 1, guc_Read_a1); //读取地址0x2F00所在扇区
+	Flash_ReadArr(USER_PARAMETER_START_SECTOR_ADDRESS1, 1, guc_Read_a1); //
 	resetbtcnt = guc_Read_a1[0];
 }
 
@@ -747,8 +753,18 @@ void XBRHandle(void)
 			{
 				if (LIGHT == 0)
 				{
-					//light_ad=READ_LIGHT();
-					light_ad = read_ad(10); //切换到an10
+					
+					#ifdef XBR403_03_2
+						light_ad = read_ad(7); //切换到an7
+					#endif
+
+					#ifdef XBR403
+						light_ad = read_ad(10); //切换到an10
+					#endif
+
+					#ifdef V12
+						light_ad = read_ad(10); //切换到an10
+					#endif
 
 					if ((light_ad <= (light_ad0 + 2)) && (light_ad0 <= (light_ad + 2)))
 						light_ad = light_ad0;
@@ -956,7 +972,8 @@ void XBRHandle(void)
 							//									send_data(0xaa);
 							//send_data(0xdd);
 							radar_trig_times++;
-							mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times);
+							//mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times);
+							radar_number_send_flag2 = 1;
 
 							SUM1_num = 8;
 							LIGHT_off = 0;
@@ -1153,8 +1170,59 @@ void wait2(void)
 
 	// 	Delay_ms(4);	//4ms
 }
+unsigned char PWM0init(unsigned char ab)
+{
+	float i11;
+	u16 j11;
+	
+	if (1 == ab)
+	{
+		j11 = 0;
+	}
+	else
+	{
+		i11 = ab * 511 / 100;
+		j11 = (u16)(i11 + 0.5);
+	}
 
-unsigned char PWM3init(unsigned char ab)
+#ifdef XBR403_03_2
+	PWM0_MAP = 0x27;					//PWM0通道映射P27口
+#endif
+	
+#ifdef XBR403
+	PWM0_MAP = 0x11;					//PWM0通道映射P11口
+#endif
+
+#ifdef V12
+	PWM0_MAP = 0x11;					//PWM0通道映射P11口
+#endif
+	
+	PWM0C = 0x01;					  	//PWM0高有效，PWM01高有效，时钟8分频 
+	
+	//独立模式下，PWM0和PWM01共用一个周期寄存器
+	//PWM0的占空比调节使用			PWM0组的占空比寄存器
+	//PWM01的占空比调节使用			PWM0组的死区寄存器
+
+	//周期计算 	= 0x03ff / (Fosc / PWM分频系数)		（Fosc见系统时钟配置的部分）
+	//			= 0x03ff / (16000000 / 8)			
+	// 			= 1023   /2000000
+	//			= 511.5us		   		约1.955kHz
+
+	PWM0PH = 0x01;						//周期高4位设置为0x03
+	PWM0PL = 0xFF;						//周期低8位设置为0xFF
+
+	//占空比计算= 0x0155 / (Fosc / PWM分频系数)		（Fosc见系统时钟配置的部分）
+	//			= 0x0155 / (16000000 / 8)			
+	// 			= 341 	 / 2000000
+	//			= 170.5us		   占空比为 170.5/511.5 = 33.3%
+
+	PWM0DH = (u8)(j11>>8);				//PWM0高4位占空比0x01
+	PWM0DL = (u8)j11;					//PWM0低8位占空比0x55
+
+	PWM0EN = 0x0F;						//使能PWM0，工作于独立模式	
+	return 0;
+}
+unsigned char PWM3init_xxx(unsigned char ab)
 {
 	float i11;
 	unsigned char j11;
@@ -1186,9 +1254,14 @@ unsigned char PWM3init(unsigned char ab)
 
 #endif
 
+#ifdef XBR403_03_2
+	PWM3_MAP = 0x01;					//PWM3通道映射P01口
+#endif
+
 #ifdef XBR403
 	PWM3_MAP = 0x10; //PWM3映射P10口
 #endif
+
 
 	//周期计算 	= 0xFF / (Fosc / PWM分频系数)		（Fosc见系统时钟配置的部分）
 	//			= 0xFF /(16000000 / 4)
@@ -1207,8 +1280,44 @@ unsigned char PWM3init(unsigned char ab)
 
 	return 0;
 }
-
-void reset_bt_module(void);
+unsigned char PWM3init(unsigned char ab)
+{
+	u8 aa;
+	u8 bb;
+	
+	if (ab_last == ab)
+	{
+		return 0;
+	}
+	else
+	{
+		ab_last = ab;
+	}
+	
+	if (0 == ab)
+	{
+		light_status_xxx = 1;
+		person_in_range_flag = 0;
+	}
+	else if (100 == ab)
+	{
+		light_status_xxx = 0;
+		person_in_range_flag = 1;
+	}
+	else
+	{
+		light_status_xxx = 2;
+		person_in_range_flag = 1;
+	}
+	
+	aa = (u8)(temper_value*ab/100 + 0.5);
+	
+	bb = ab - aa;
+	PWM0init(aa);//冷
+	PWM3init_xxx(bb);//暖
+	
+	return 0;
+}
 
 /***************************************************************************************
   * @说明  	主函数
@@ -1243,31 +1352,30 @@ void main()
 	//LIGHT_ON;
 	PWM3init(100);
 	SWITCHflag = 1;
-	light_ad = read_ad(10);
+	
+	
+	#ifdef XBR403_03_2
+		light_ad = read_ad(7); //切换到an7
+	#endif
+	
+	#ifdef XBR403
+		light_ad = read_ad(10); //切换到an10
+	#endif
+	
+	#ifdef V12
+		light_ad = read_ad(10); //切换到an10
+	#endif
+	
 	light_ad0 = light_ad;
 
 	EA = 0;
 	set_var(); //从flash读取出变量
 
-	//for(i=0;i<5;i++)send_data(guc_Read_a[i]);
-
-	// 	TXdata[0]=VERSION;
-	// 	t=TH/1000;
-	// 	TXdata[1]=t>>8;
-	// 	TXdata[2]=t;
-	// 	TXdata[3]=LIGHT_TH;
-	// 	t=DELAY_NUM/4;
-	// 	TXdata[4]=t>>8;
-	// 	TXdata[5]=t;
-
-	// 	TXdata[6]=light_ad;
-
-	// 	for(i=0;i<7;i++)send_data(TXdata[i]);
 	resetbtcnt++;
 
-	Flash_EraseBlock(0x2F80);
+	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
 	Delay_us_1(10000);
-	FLASH_WriteData(resetbtcnt, 0x2F80);
+	FLASH_WriteData(resetbtcnt, USER_PARAMETER_START_SECTOR_ADDRESS1);
 	Delay_us_1(100);
 
 	EA = 1;
@@ -1290,6 +1398,50 @@ void main()
 		{
 			resetbtcnt = 0;
 			reset_bt_module();
+		}
+		
+//		if (Exit_network_controlflag)
+//		{
+//			PWM3init(100);
+//			Delay_ms(100);
+//			PWM3init(0);
+//			Delay_ms(100);
+//			Exit_network_controlflag_toggle_counter++;
+//			if (300 <= Exit_network_controlflag_toggle_counter)	//1 min toggle led
+//			{
+//				Exit_network_controlflag = 0;
+//			}
+//		}
+		
+		// if (1 == check_group_flag)
+		// {
+			// check_group_flag = 0;
+			if (light_status_xxx != light_status_xxx_last)
+			{
+				mcu_dp_enum_update(DPID_LIGHT_STATUS,light_status_xxx);
+				light_status_xxx_last = light_status_xxx;
+			}
+			
+			if (person_in_range_flag != person_in_range_flag_last)
+			{
+				mcu_dp_enum_update(DPID_PERSON_IN_RANGE,person_in_range_flag);
+				person_in_range_flag_last = person_in_range_flag;
+			}			
+
+		// }
+		
+		if (1 == radar_number_send_flag)
+		{
+			if (1 == radar_number_send_flag2)
+			{
+				radar_number_send_flag = 0;
+				radar_number_send_flag2 = 0;
+				if (radar_trig_times_last != radar_trig_times)
+				{
+					mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times);
+					radar_trig_times_last = radar_trig_times;
+				}
+			}
 		}
 
 //		if (check_group_count <= 2) //一上电间隔一秒获取3次群组地址
@@ -1384,7 +1536,7 @@ void main()
 					//PWM3init(100);
 					for (i = 0; i < 8; i++)
 					{
-						if (groupaddr[i] != 0)
+						//if (groupaddr[i] != 0)
 						{
 							//mcu_dp_bool_mesh_update(DPID_SWITCH_LED2, SWITCHflag2, groupaddr[i]);
 						}
@@ -1450,10 +1602,16 @@ void TIMER1_Rpt(void) interrupt TIMER1_VECTOR
 	light1scount++;
 	if (light1scount >= 1000)
 	{
-		check_group_flag = 1;
+		//check_group_flag = 1;
 		light1scount = 0;
 		light1sflag = 1;
 	}
+	radar_number_count++;
+	if (radar_number_count >= 1000)
+	{
+		radar_number_count = 0;
+		radar_number_send_flag = 1;
+	}	
 }
 
 /***************************************************************************************
@@ -1567,55 +1725,61 @@ void FLASH_WriteData(unsigned char fuc_SaveData, unsigned int fui_Address)
 void savevar(void)
 {
 	unsigned char i;
-	Flash_EraseBlock(0x2F00);
+	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS0);
 	Delay_us_1(10000);
 
 	i=(TH/1000)>>8;
-	FLASH_WriteData(i,0x2F00+0);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+0);
 	Delay_us_1(100);
 	
     i=(TH/1000)&0xff;
-	FLASH_WriteData(i,0x2F00+1);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+1);
 	Delay_us_1(100);
 	
     i=LIGHT_TH;
-	FLASH_WriteData(i,0x2F00+2);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+2);
 	Delay_us_1(100);
 	
 	i=DELAY_NUM>>8;
-	FLASH_WriteData(i,0x2F00+3);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+3);
 	Delay_us_1(100);
 	i=DELAY_NUM&0xff;//&0xff;
-	FLASH_WriteData(i,0x2F00+4);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+4);
 	Delay_us_1(100);
 	
 	i=lightvalue;
-	FLASH_WriteData(i,0x2F00+5);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+5);
 	Delay_us_1(100);
 	
 	i=lowlightDELAY_NUM;
-	FLASH_WriteData(i,0x2F00+6);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+6);
 	Delay_us_1(100);
 	
 	i=~SWITCHfXBR;//&0xff;
-	FLASH_WriteData(i,0x2F00+7);
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+7);
 	Delay_us_1(100);
 	
-//	i=addr;//&0xff;
-//	FLASH_WriteData(i,0X2F00+7);
-//	Delay_us_1(100);
-//	
-//	i=devgroup;//&0xff;
-//	FLASH_WriteData(i,0X2F00+8);
-//	Delay_us_1(100);
-
-//	i=addrend;
-//	FLASH_WriteData(i,0X2F00+9);
-//	Delay_us_1(100);
+	i=Linkage_flag;
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+8);
+	Delay_us_1(100);	
 	
-	Flash_EraseBlock(0x2F80);
+	i=SWITCHflag2;
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+9);
+	Delay_us_1(100);	
+	
+	i=all_day_micro_light_enable;
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+10);
+	Delay_us_1(100);
+	
+	i=temper_value;
+	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+11);
+	Delay_us_1(100);
+
+////////////////////////////////////////////////////////
+	
+	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
 	Delay_us_1(10000);
-	FLASH_WriteData(0,0x2F80+0);
+	FLASH_WriteData(0, USER_PARAMETER_START_SECTOR_ADDRESS1+0);
 	
 	EA=1;				//-20200927
 

@@ -117,7 +117,7 @@ mcu在wifi模块正确联网后可调用mcu_get_system_time()函数发起校时�
 并在protocol.c文件wifi_test_result函数内查看测试结果,
 wifi_test_result内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-#define         WIFI_TEST_ENABLE                //开启WIFI产测功能（扫描指定路由）
+//#define         WIFI_TEST_ENABLE                //开启WIFI产测功能（扫描指定路由）
 
 /******************************************************************************
                       7:是否开启天气功能
@@ -163,7 +163,7 @@ wifi_connect_test_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件wifi_test_result函数内查看结果,
 wifi_test_result内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-#define         GET_WIFI_STATUS_ENABLE                  //开启获取当前WIFI联网状态功能
+//#define         GET_WIFI_STATUS_ENABLE                  //开启获取当前WIFI联网状态功能
 
 /******************************************************************************
                       12:MCU是否需要开启获取模块mac地址功能
@@ -171,7 +171,7 @@ wifi_test_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件mcu_get_mac函数内查看结果,
 mcu_get_mac内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-#define         GET_MODULE_MAC_ENABLE                   //开启获取模块mac地址功能
+//#define         GET_MODULE_MAC_ENABLE                   //开启获取模块mac地址功能
 
 /******************************************************************************
                       13:MCU是否需要支持获取格林时间功能
@@ -259,6 +259,9 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //亮度值(可下发可上报)
 //备注:灯的亮度值
 #define DPID_BRIGHT_VALUE 22
+//冷暖值(可下发可上报)
+//备注:
+#define DPID_TEMP_VALUE 23
 //光敏参数(可下发可上报)
 //备注:红外对光的敏感度
 #define DPID_CDS 101
@@ -297,9 +300,6 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //人状态(只上报)
 //备注:
 #define DPID_PERSON_IN_RANGE 119
-//冷暖(可下发可上报)
-//备注:
-#define DPID_TEMP_SELECT 120
 
 
 

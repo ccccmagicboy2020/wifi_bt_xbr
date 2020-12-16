@@ -402,7 +402,7 @@ void data_handle(unsigned short offset)
     unsigned char ret;
     unsigned short i,total_len;
     unsigned char cmd_type = wifi_data_process_buf[offset + FRAME_TYPE];
-    unsigned char result;
+    //unsigned char result;
 
 #ifdef WEATHER_ENABLE
     static unsigned char isWoSend = 0;                                          //是否已经打开过天气数据, 0:否  1:是

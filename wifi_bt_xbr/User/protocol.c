@@ -37,24 +37,14 @@ u8 xdata cdsvalue = 0;              //感光选择值
 ulong xdata sensing_th = 0;     //雷达感应阈值，数值越大越灵敏
 extern  u8 idata Linkage_flag;	//联动的开关的全局
 extern  u8 idata Light_on_flag;	//
+extern u8 xdata temper_value;		//冷暖值
 
-//const char xdata led_bn_on[]={"led on"};
-//const char xdata led_bn_off[]={"led off"};
-//const char xdata radar_bn_on[]={"radar on"};
-//const char xdata radar_bn_off[]={"radar off"};
-
-unsigned char DPID_SWITCH_LED2count = 0;
-unsigned char DPID_SWITCH_XBRcount = 0;
-unsigned char DPID_BRIGHT_VALUEcount = 0;
-unsigned char DPID_CDScount = 0;
-unsigned char DPID_PIR_DELAYcount = 0;
-unsigned char DPID_STANDBY_TIMEcount = 0;
-unsigned char DPID_SENSE_STRESScount = 0;
-
-extern u16 idata groupaddr[8];
 
 extern u8 xdata all_day_micro_light_enable;
 extern u16 xdata radar_trig_times;
+extern u8 xdata light_status_xxx;
+extern u8 xdata person_in_range_flag;
+extern u8 idata Exit_network_controlflag;
 
 //extern TYPE_BUFFER_S FlashBuffer;
 void send_data(u8 d);
@@ -64,6 +54,7 @@ void savevar(void);
 void Flash_EraseBlock(unsigned int fui_Address);//flash扇区擦除
 void FLASH_WriteData(unsigned char fuc_SaveData, unsigned int fui_Address);//flash写入
 void Delay_us_1(uint q1);
+unsigned char PWM0init(unsigned char ab);
 
 void reset_bt_module(void)
 {
@@ -132,6 +123,7 @@ const DOWNLOAD_CMD_S xdata download_cmd[] =
 {
   {DPID_SWITCH_LED, DP_TYPE_BOOL},
   {DPID_BRIGHT_VALUE, DP_TYPE_VALUE},
+  {DPID_TEMP_VALUE, DP_TYPE_VALUE},
   {DPID_CDS, DP_TYPE_ENUM},
   {DPID_PIR_DELAY, DP_TYPE_VALUE},
   {DPID_SWITCH_XBR, DP_TYPE_BOOL},
@@ -144,7 +136,6 @@ const DOWNLOAD_CMD_S xdata download_cmd[] =
   {DPID_CLEAR_TRIGGER_NUMBER, DP_TYPE_BOOL},
   {DPID_LIGHT_STATUS, DP_TYPE_ENUM},
   {DPID_PERSON_IN_RANGE, DP_TYPE_ENUM},
-  {DPID_TEMP_SELECT, DP_TYPE_ENUM},
 };
 
 
@@ -244,9 +235,9 @@ void all_data_update(void)
     mcu_dp_bool_update(DPID_ALL_DAY_MICRO_LIGHT,all_day_micro_light_enable); //BOOL型数据上报;
     mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times); //VALUE型数据上报;
 
-    mcu_dp_enum_update(DPID_LIGHT_STATUS,当前灯状态); //枚举型数据上报;
-    mcu_dp_enum_update(DPID_PERSON_IN_RANGE,当前人状态); //枚举型数据上报;
-    mcu_dp_enum_update(DPID_TEMP_SELECT,当前冷暖); //枚举型数据上报;
+    mcu_dp_enum_update(DPID_LIGHT_STATUS,light_status_xxx); //枚举型数据上报;
+    mcu_dp_enum_update(DPID_PERSON_IN_RANGE,person_in_range_flag); //枚举型数据上报;
+	mcu_dp_value_update(DPID_TEMP_VALUE,temper_value); //VALUE型数据上报;
 }
 
 
@@ -299,7 +290,7 @@ static unsigned char dp_download_bright_value_handle(const unsigned char value[]
     
     bright_value = mcu_get_dp_download_value(value,length);
 	
-	DPID_BRIGHT_VALUEcount++;
+	//DPID_BRIGHT_VALUEcount++;
 	if(bright_value==lightvalue)
 	{
 /* 		if(DPID_BRIGHT_VALUEcount<2)
@@ -317,7 +308,7 @@ static unsigned char dp_download_bright_value_handle(const unsigned char value[]
 	}
 	else
 	{
-		DPID_BRIGHT_VALUEcount=0;
+		//DPID_BRIGHT_VALUEcount=0;
 		for(i=0;i<8;i++)
 		{
 //			if(groupaddr[i] != 0)
@@ -345,6 +336,32 @@ static unsigned char dp_download_bright_value_handle(const unsigned char value[]
         return ERROR;
 }
 /*****************************************************************************
+函数名称 : dp_download_temp_value_handle
+功能描述 : 针对DPID_TEMP_VALUE的处理函数
+输入参数 : value:数据源数据
+        : length:数据长度
+返回参数 : 成功返回:SUCCESS/失败返回:ERROR
+使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
+*****************************************************************************/
+static unsigned char dp_download_temp_value_handle(const unsigned char value[], unsigned short length)
+{		
+    //示例:当前DP类型为ENUM
+    unsigned char ret;
+    
+    temper_value = mcu_get_dp_download_enum(value,length);
+	
+	PWM3init(0);
+	PWM3init(XRBoffbrightvalue);
+		
+    
+    //处理完DP数据后应有反馈
+    ret = mcu_dp_enum_update(DPID_TEMP_VALUE, temper_value);
+    if(ret == SUCCESS)
+        return SUCCESS;
+    else
+        return ERROR;
+}
+/*****************************************************************************
 函数名称 : dp_download_cds_handle
 功能描述 : 针对DPID_CDS的处理函数
 输入参数 : value:数据源数据
@@ -361,10 +378,10 @@ static unsigned char dp_download_cds_handle(const unsigned char value[], unsigne
     
     cds = mcu_get_dp_download_enum(value,length);
 	
-	DPID_CDScount++;
+	//DPID_CDScount++;
 	if(cds==cdsvalue)
 	{
-		if(DPID_CDScount<2)
+		//if(DPID_CDScount<2)
 		{
 /* 			for(i=0;i<8;i++)
 			{
@@ -376,12 +393,12 @@ static unsigned char dp_download_cds_handle(const unsigned char value[], unsigne
 		}
 		if((cds==5)&&(light_ad!=LIGHT_TH))
 		{
-			DPID_CDScount=0;
+			//DPID_CDScount=0;
 		}
 	}
 	else
 	{
-		DPID_CDScount=0;
+		//DPID_CDScount=0;
 		for(i=0;i<8;i++)
 		{
 //			if(groupaddr[i] != 0)
@@ -453,7 +470,7 @@ static unsigned char dp_download_pir_delay_handle(const unsigned char value[], u
     //VALUE类型数据处理
     */
 	
-	DPID_PIR_DELAYcount++;
+	//DPID_PIR_DELAYcount++;
 	if(pir_delay==DELAY_NUM)
 	{
 /* 		if(DPID_PIR_DELAYcount<2)
@@ -469,7 +486,7 @@ static unsigned char dp_download_pir_delay_handle(const unsigned char value[], u
 	}
 	else
 	{
-		DPID_PIR_DELAYcount=0;
+		//DPID_PIR_DELAYcount=0;
 		for(i=0;i<8;i++)
 		{
 //			if(groupaddr[i] != 0)
@@ -507,7 +524,7 @@ static unsigned char dp_download_switch_xbr_handle(const unsigned char value[], 
     
     switch_xbr = mcu_get_dp_download_bool(value,length);
 	
-	DPID_SWITCH_XBRcount++;
+	//DPID_SWITCH_XBRcount++;
 	if(switch_xbr==SWITCHfXBR)
 	{
 /* 		if(DPID_SWITCH_XBRcount<2)
@@ -523,7 +540,7 @@ static unsigned char dp_download_switch_xbr_handle(const unsigned char value[], 
 	}
 	else
 	{
-		DPID_SWITCH_XBRcount=0;
+		//DPID_SWITCH_XBRcount=0;
 		for(i=0;i<8;i++)
 		{
 //			if(groupaddr[i] != 0)
@@ -572,7 +589,7 @@ static unsigned char dp_download_standby_time_handle(const unsigned char value[]
     //VALUE类型数据处理
     
     */
-	DPID_STANDBY_TIMEcount++;
+	//DPID_STANDBY_TIMEcount++;
 	if(standby_time==lowlightDELAY_NUM)
 	{
 /* 		if(DPID_STANDBY_TIMEcount<2)
@@ -588,7 +605,7 @@ static unsigned char dp_download_standby_time_handle(const unsigned char value[]
 	}
 	else
 	{
-		DPID_STANDBY_TIMEcount=0;
+		//DPID_STANDBY_TIMEcount=0;
 		for(i=0;i<8;i++)
 			{
 //				if(groupaddr[i] != 0)
@@ -629,7 +646,7 @@ static unsigned char dp_download_sense_stress_handle(const unsigned char value[]
     //VALUE类型数据处理
     
     */
-	DPID_SENSE_STRESScount++;
+	//DPID_SENSE_STRESScount++;
 	if(sense_stress==sensing_th)
 	{
 /* 		if(DPID_SENSE_STRESScount<2)
@@ -645,7 +662,7 @@ static unsigned char dp_download_sense_stress_handle(const unsigned char value[]
 	}
 	else
 	{
-		DPID_SENSE_STRESScount=0;
+		//DPID_SENSE_STRESScount=0;
 		for(i=0;i<8;i++)
 		{
 //			if(groupaddr[i] != 0)
@@ -687,7 +704,7 @@ static unsigned char dp_download_switch_led2_handle(const unsigned char value[],
     
     switch_led2 = mcu_get_dp_download_bool(value,length);
 
-    DPID_SWITCH_LED2count++;
+    //DPID_SWITCH_LED2count++;
     if(switch_led2==SWITCHflag2)
     {
 /*     	if(DPID_SWITCH_LED2count<2)
@@ -703,7 +720,7 @@ static unsigned char dp_download_switch_led2_handle(const unsigned char value[],
     }
     else
     {
-    	DPID_SWITCH_LED2count=0;
+    	//DPID_SWITCH_LED2count=0;
     	for(i=0;i<8;i++)
     	{
 //    		if(groupaddr[i] != 0)
@@ -839,7 +856,7 @@ static unsigned char dp_download_all_day_micro_light_handle(const unsigned char 
 static unsigned char dp_download_clear_trigger_number_handle(const unsigned char value[], unsigned short length)
 {
     //示例:当前DP类型为BOOL
-    unsigned char ret;
+    //unsigned char ret;
     //0:关/1:开
     unsigned char clear_trigger_number;
     
@@ -848,57 +865,12 @@ static unsigned char dp_download_clear_trigger_number_handle(const unsigned char
         //开关关
     }else {
         //开关开
+		radar_trig_times = 0;
+		mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times); //VALUE型数据上报;
     }
   
-    //处理完DP数据后应有反馈
-    ret = mcu_dp_bool_update(DPID_CLEAR_TRIGGER_NUMBER,clear_trigger_number);
-    if(ret == SUCCESS)
-        return SUCCESS;
-    else
-        return ERROR;
-}
-/*****************************************************************************
-函数名称 : dp_download_temp_select_handle
-功能描述 : 针对DPID_TEMP_SELECT的处理函数
-输入参数 : value:数据源数据
-        : length:数据长度
-返回参数 : 成功返回:SUCCESS/失败返回:ERROR
-使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
-*****************************************************************************/
-static unsigned char dp_download_temp_select_handle(const unsigned char value[], unsigned short length)
-{
-    //示例:当前DP类型为ENUM
-    unsigned char ret;
-    unsigned char temp_select;
-    
-    temp_select = mcu_get_dp_download_enum(value,length);
-    switch(temp_select) {
-        case 0:
-        break;
-        
-        case 1:
-        break;
-        
-        case 2:
-        break;
-        
-        case 3:
-        break;
-        
-        case 4:
-        break;
-        
-        default:
-    
-        break;
-    }
-    
-    //处理完DP数据后应有反馈
-    ret = mcu_dp_enum_update(DPID_TEMP_SELECT, temp_select);
-    if(ret == SUCCESS)
-        return SUCCESS;
-    else
-        return ERROR;
+  	return SUCCESS;
+
 }
 
 
@@ -946,6 +918,11 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             ret = dp_download_bright_value_handle(value,length);
             switchcnt = 0;
         break;
+        case DPID_TEMP_VALUE:
+            //冷暖值处理函数
+            ret = dp_download_temp_value_handle(value,length);
+			switchcnt = 0;
+        break;
         case DPID_CDS:
             //光敏参数处理函数
             ret = dp_download_cds_handle(value,length);
@@ -991,17 +968,13 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             ret = dp_download_clear_trigger_number_handle(value,length);
 			switchcnt = 0;
         break;
-        case DPID_TEMP_SELECT:
-            //冷暖处理函数
-            ret = dp_download_temp_select_handle(value,length);
-			switchcnt = 0;
-        break;
 
-  default:
-        switchcnt = 0;
-    break;
-  }
-  return ret;
+        
+        default:
+        	switchcnt = 0;
+        break;
+    }
+    return ret;
 }
 
 /**
@@ -1143,7 +1116,7 @@ void wifi_test_result(unsigned char result,unsigned char rssi)
         //测试成功
         //rssi为信号强度(0-100, 0信号最差，100信号最强)
 		//
-		cccc
+		//cccc
     }
 }
 #endif
@@ -1282,7 +1255,7 @@ void get_upload_syn_result(unsigned char result)
  */
 void get_wifi_status(unsigned char result)
 {
-  #error "请自行完成获取 WIFI 状态结果代码,并删除该行"
+//  #error "请自行完成获取 WIFI 状态结果代码,并删除该行"
  
     switch(result) {
         case 0:
@@ -1414,7 +1387,7 @@ void wifi_connect_test_result(unsigned char result)
  */
 void mcu_get_mac(unsigned char mac[])
 {
-    #error "请自行完成mac获取代码,并删除该行"
+//    #error "请自行完成mac获取代码,并删除该行"
     /*
     mac[0]为是否获取mac成功标志，0x00 表示成功，为0x01表示失败
     mac[1]~mac[6]:当获取 MAC地址标志位如果mac[0]为成功，则表示模块有效的MAC地址
