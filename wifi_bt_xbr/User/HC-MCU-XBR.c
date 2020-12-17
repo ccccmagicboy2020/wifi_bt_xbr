@@ -76,6 +76,7 @@ u8 idata Light_on_flag = 0;
 u8 idata Light_on_flagpre = 0;
 u8 xdata temper_value = 0;			//冷暖值
 
+u8 xdata wifi_join_cnt = 0;
 u8 xdata all_day_micro_light_enable = 0;
 u16 xdata radar_trig_times = 0;
 u16 xdata radar_trig_times_last = 0;
@@ -104,7 +105,7 @@ void savevar(void);
 void reset_bt_module(void);
 
 unsigned char xdata guc_Read_a[16] = {0x00}; //用于存放读取的数据
-unsigned char xdata guc_Read_a1[1] = {0x00}; //用于存放读取的数据
+unsigned char xdata guc_Read_a1[2] = {0x00}; //用于存放读取的数据
 
 void Flash_ReadArr(unsigned int fui_Address, unsigned char fuc_Length, unsigned char *fucp_SaveArr)
 {
@@ -442,8 +443,14 @@ void set_var(void)
 	
 	temper_value = guc_Read_a[11];
 	//
-	Flash_ReadArr(USER_PARAMETER_START_SECTOR_ADDRESS1, 1, guc_Read_a1); //
+	Flash_ReadArr(USER_PARAMETER_START_SECTOR_ADDRESS1, 2, guc_Read_a1); //
 	resetbtcnt = guc_Read_a1[0];
+	wifi_join_cnt = guc_Read_a1[1];
+	savevar();
+	if (0 == wifi_join_cnt)
+	{
+		reset_bt_module();
+	}
 }
 
 void XBRHandle(void)
@@ -1191,18 +1198,18 @@ void main()
 			reset_bt_module();
 		}
 		
-//		if (Exit_network_controlflag)
-//		{
-//			PWM3init(100);
-//			Delay_ms(100);
-//			PWM3init(0);
-//			Delay_ms(100);
-//			Exit_network_controlflag_toggle_counter++;
-//			if (300 <= Exit_network_controlflag_toggle_counter)	//1 min toggle led
-//			{
-//				Exit_network_controlflag = 0;
-//			}
-//		}
+		if (Exit_network_controlflag)
+		{
+			PWM3init(100);
+			Delay_ms(100);
+			PWM3init(0);
+			Delay_ms(100);
+			Exit_network_controlflag_toggle_counter++;
+			if (300 <= Exit_network_controlflag_toggle_counter)	//1 min toggle led
+			{
+				Exit_network_controlflag = 0;
+			}
+		}
 		
 		if (light_status_xxx != light_status_xxx_last)
 		{
@@ -1232,11 +1239,7 @@ void main()
 
 		WDTC |= 0x10; //清看门狗
 
-		if (while_1flag == 0)
-		{
-			if ((times & 0x1f) == 0)
-				wifi_uart_service();
-		}
+		wifi_uart_service();
 
 		if (SWITCHfXBR == 1) //雷达开, app控制
 		{
@@ -1531,7 +1534,8 @@ void savevar(void)
 	
 	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
 	Delay_us(10000);
-	FLASH_WriteData(0, USER_PARAMETER_START_SECTOR_ADDRESS1+0);
+	FLASH_WriteData(0, USER_PARAMETER_START_SECTOR_ADDRESS1+0);//clear resetbtcnt
+	FLASH_WriteData(1,USER_PARAMETER_START_SECTOR_ADDRESS1+1);//clear join count
 	
 	EA=1;				//-20200927
 

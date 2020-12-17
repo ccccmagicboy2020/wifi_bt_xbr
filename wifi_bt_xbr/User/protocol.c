@@ -58,13 +58,16 @@ extern unsigned char PWM0init(unsigned char ab);
 
 void reset_bt_module(void)
 {
+	//Smartconfig 模式：55 aa 03 05 00 01 00 08
     send_data(0x55);//p5，重置模块
     send_data(0xAA);
     send_data(0x03);
-    send_data(0x04);
+    send_data(0x05);
     send_data(0x00);
+    send_data(0x01);	
     send_data(0x00);
-    send_data(0x06);
+    send_data(0x08);
+		Exit_network_controlflag = 1;
 }
 
 /******************************************************************************
@@ -123,7 +126,6 @@ const DOWNLOAD_CMD_S xdata download_cmd[] =
 {
   {DPID_SWITCH_LED, DP_TYPE_BOOL},
   {DPID_BRIGHT_VALUE, DP_TYPE_VALUE},
-  {DPID_TEMP_VALUE, DP_TYPE_VALUE},
   {DPID_CDS, DP_TYPE_ENUM},
   {DPID_PIR_DELAY, DP_TYPE_VALUE},
   {DPID_SWITCH_XBR, DP_TYPE_BOOL},
@@ -136,6 +138,7 @@ const DOWNLOAD_CMD_S xdata download_cmd[] =
   {DPID_CLEAR_TRIGGER_NUMBER, DP_TYPE_BOOL},
   {DPID_LIGHT_STATUS, DP_TYPE_ENUM},
   {DPID_PERSON_IN_RANGE, DP_TYPE_ENUM},
+  {DPID_TEMP_VALUE2, DP_TYPE_VALUE},
 };
 
 
@@ -225,7 +228,7 @@ void all_data_update(void)
 
     mcu_dp_enum_update(DPID_LIGHT_STATUS,light_status_xxx); //枚举型数据上报;
     mcu_dp_enum_update(DPID_PERSON_IN_RANGE,person_in_range_flag); //枚举型数据上报;
-		mcu_dp_value_update(DPID_TEMP_VALUE,temper_value); //VALUE型数据上报;
+		mcu_dp_value_update(DPID_TEMP_VALUE2,temper_value); //VALUE型数据上报;
 }
 
 
@@ -305,13 +308,13 @@ static unsigned char dp_download_bright_value_handle(const unsigned char value[]
 返回参数 : 成功返回:SUCCESS/失败返回:ERROR
 使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
 *****************************************************************************/
-static unsigned char dp_download_temp_value_handle(const unsigned char value[], unsigned short length)
+static unsigned char dp_download_temp_value2_handle(const unsigned char value[], unsigned short length)
 {		
     //示例:当前DP类型为ENUM
     unsigned char ret;
-    unsigned long temper_value_xxx;
+    u8 temper_value_xxx;
     
-    temper_value_xxx = mcu_get_dp_download_enum(value,length);
+    temper_value_xxx = mcu_get_dp_download_value(value,length);
 	
 		if(temper_value_xxx==temper_value)
 		{
@@ -323,12 +326,12 @@ static unsigned char dp_download_temp_value_handle(const unsigned char value[], 
 		}		
 		
 		temper_value = temper_value_xxx;
-//		PWM3init(0);
-//		PWM3init(XRBoffbrightvalue);
-		PWM0init(temper_value);
+		PWM3init(0);
+		PWM3init(XRBoffbrightvalue);
+		//PWM0init(temper_value);
     
     //处理完DP数据后应有反馈
-    ret = mcu_dp_enum_update(DPID_TEMP_VALUE, temper_value);
+    ret = mcu_dp_value_update(DPID_TEMP_VALUE2, temper_value);
     if(ret == SUCCESS)
         return SUCCESS;
     else
@@ -686,7 +689,6 @@ static unsigned char dp_download_clear_trigger_number_handle(const unsigned char
 
 
 
-
 /******************************************************************************
                                 WARNING!!!                     
 此部分函数用户请勿修改!!
@@ -729,9 +731,9 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             ret = dp_download_bright_value_handle(value,length);
             switchcnt = 0;
         break;
-        case DPID_TEMP_VALUE:
+        case DPID_TEMP_VALUE2:
             //冷暖值处理函数
-            ret = dp_download_temp_value_handle(value,length);
+            ret = dp_download_temp_value2_handle(value,length);
 			switchcnt = 0;
         break;
         case DPID_CDS:
@@ -1087,6 +1089,9 @@ void get_wifi_status(unsigned char result)
         
         case 4:
             //wifi工作状态5
+						//
+						savevar();
+						Exit_network_controlflag = 0;
         break;
         
         case 5:

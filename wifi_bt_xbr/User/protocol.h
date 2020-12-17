@@ -74,7 +74,7 @@ MCU可调用mcu_api.c文件内的mcu_firm_update_query()函数获取当前MCU固
                     如当前使用MCU的RAM不够,可修改为24
 ******************************************************************************/
 #ifndef SUPPORT_MCU_FIRM_UPDATE
-#define WIFI_UART_RECV_BUF_LMT          20              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
+#define WIFI_UART_RECV_BUF_LMT          16              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
 #define WIFI_DATA_PROCESS_LMT           24              //串口数据处理缓存区大小,根据用户DP数据大小量定,必须大于24
 #else
 #define WIFI_UART_RECV_BUF_LMT          64             //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
@@ -163,7 +163,7 @@ wifi_connect_test_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件wifi_test_result函数内查看结果,
 wifi_test_result内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         GET_WIFI_STATUS_ENABLE                  //开启获取当前WIFI联网状态功能
+#define         GET_WIFI_STATUS_ENABLE                  //开启获取当前WIFI联网状态功能
 
 /******************************************************************************
                       12:MCU是否需要开启获取模块mac地址功能
@@ -259,9 +259,6 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //亮度值(可下发可上报)
 //备注:灯的亮度值
 #define DPID_BRIGHT_VALUE 22
-//冷暖值(可下发可上报)
-//备注:
-#define DPID_TEMP_VALUE 23
 //光敏参数(可下发可上报)
 //备注:红外对光的敏感度
 #define DPID_CDS 101
@@ -300,6 +297,9 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //人状态(只上报)
 //备注:
 #define DPID_PERSON_IN_RANGE 119
+//冷暖值(可下发可上报)
+//备注:
+#define DPID_TEMP_VALUE2 150
 
 
 
