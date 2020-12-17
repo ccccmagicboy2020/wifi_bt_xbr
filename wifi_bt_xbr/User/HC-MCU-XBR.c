@@ -116,15 +116,6 @@ void Flash_ReadArr(unsigned int fui_Address, unsigned char fuc_Length, unsigned 
 		*(fucp_SaveArr++) = *((unsigned char code *)(fui_Address++)); //读取数据
 }
 
-void Delay_us(uint q)
-{
-	uint j;
-	for (j = 0; j < q; j++)
-	{
-		;
-	}
-}
-
 void Delay_ms(uint t)
 {
 	Timer_Counter = 0;
@@ -134,7 +125,7 @@ void Delay_ms(uint t)
 	}
 }
 
-void Delay_us_1(uint q1)
+void Delay_us(uint q1)
 {
 	uint j;
 	for (j = 0; j < q1; j++)
@@ -358,159 +349,6 @@ void GPIO_Init()
 
 }
 
-// u16 Read_ADC(u8 Channel)
-// {
-// 	u16 ADC_Temp;
-// 	ADCC1 = Channel;						  //选择外部通道1
-//   ADCC0 |= 0x40;					//启动ADC转换
-// 	while(!(ADCC0&0x20));		//等待ADC转换结束
-// 	ADCC0 &=~ 0x20;					//清除标志位
-// 	ADC_Temp = ADCR;				//获取ADC的值
-// 	return ADC_Temp;
-// }
-
-/***************************************************************************************
-  * @说明  	系统时钟计数函数
-  *	@参数	  无
-  * @返回值 无
-  * @注		  无
-***************************************************************************************/
-/*
-void System_Time_Cnt(void)
-{
-    static u32 Timer1Count1 = 0;
-    static u8 Timer1Count2 = 0;
-    u32 Tampe = 1;
-    if(Timer1_FLAG)              //1ms
-    {
-        Timer1_FLAG = 0;
-        Timer1Count1 ++;
-        Tampe = Timer1Count1 % 10;
-        if(Tampe == 0)
-            Time_10mS_FLAG = 1;
-        Tampe = Timer1Count1 % 100;
-        if(Tampe == 0)
-            Time_100mS_FLAG = 1;
-        Tampe = Timer1Count1 % 200;
-        if(Tampe == 0)
-            Time_200mS_FLAG = 1;
-        Tampe = Timer1Count1 % 500;
-        if(Tampe == 0)
-            Time_500mS_FLAG = 1;
-        Tampe = Timer1Count1 % 1000;
-        if(Tampe == 0)
-            Time_1S_FLAG = 1;
-        Tampe = Timer1Count1 % 10000;
-        if(Tampe == 0)
-        {
-            Time_10S_FLAG = 1;
-            Timer1Count1 = 0;
-            Timer1Count2 ++;
-            Tampe = Timer1Count2 % 6;
-            if(Tampe == 0)
-                Time_1Min_FLAG = 1;
-            Tampe = Timer1Count2 % 60;
-            if(Tampe == 0)
-            {
-                Time_1H_FLAG = 1;
-                Timer1Count2 = 0;
-            }
-        }
-    }
-}
-*/
-
-/***************************************************************************************
-  * @说明  	系统任务处理函数
-  *	@参数	  无
-  * @返回值 无
-  * @注		  无
-***************************************************************************************/
-
-/*
-void System_Task(void)
-{
-    u8 temp;
-		if(Time_10mS_FLAG)
-    {
-        Time_10mS_FLAG = 0;
-        //User TASK
-        
-        
-        //User TASK
-        if(Time_100mS_FLAG)
-        {
-            Time_100mS_FLAG = 0;
-            //User TASK
-
-        
-        
-            //User TASK
-        }
-        if(Time_200mS_FLAG)
-        {
-            Time_200mS_FLAG = 0;
-            //User TASK
-
-        
-        
-            //User TASK
-        }
-        if(Time_500mS_FLAG)
-        {
-            Time_500mS_FLAG = 0;
-            //User TASK
-						AN1_Data = Read_ADC(0x01);
-					
-            //User TASK
-        }
-         if(Time_1S_FLAG)
-        {
-            Time_1S_FLAG = 0;
-            //User TASK
-
-						temp = 0xFF & (AN1_Data >> 8);
-						SBUF = temp;
-						while(!(SCON & 0x02));
-						SCON &=~ 0x02;			           //清除发送中断标志位
-						temp = 0xFF & AN1_Data;
-						SBUF = temp;
-						while(!(SCON & 0x02));
-						SCON &=~ 0x02;			           //清除发送中断标志位
-						P0_0 =~ P0_0;	
-						//User TASK
-            
-        }
-        if(Time_10S_FLAG)
-        {
-            Time_10S_FLAG = 0;
-            //User TASK
-            
-
-            //User TASK
-        }
-        if(Time_1Min_FLAG)
-        {
-            Time_1Min_FLAG = 0;
-            //User TASK
-        
-        
-        
-            //User TASK
-        }
-        if(Time_1H_FLAG)
-        {
-            Time_1H_FLAG = 0;
-            //User TASK
-        
-        
-        
-            //User TASK
-        }
-    }
-}
-*/
-
 void send_data(u8 d)
 {
 	SBUF = d;
@@ -525,57 +363,18 @@ uchar read_ad(uchar ch)
 	u8 i;
 	uint ad_sum;
 
-	//	switch (ch)
-	//	{
-	//		case 3:
-	//			ADC_P16_AN3;
-	//			break;
-	//		case 4:
-	//			ADC_P15_AN4;
-	//			break;
-	//		case 5:
-	//			ADC_P14_AN5;
-	//			break;
-	//	}
-
-	// 	if(ch==3)
-	// 	{
-	// 		ADC_P16_AN3;
-	// 	}
-	// 	else if(ch==4)
-	// 	{
-	// 		ADC_P15_AN4;
-	// 	}
-
 	ADCC1 = ch;	   //选择外部通道
 	ADCC0 |= 0x40; //启动ADC转换
 	while (!(ADCC0 & 0x20))
 		;			//等待ADC转换结束
 	ADCC0 &= ~0x20; //清除标志位
 
-	//ADC_Temp = ADCR;				//获取ADC的值
-
-	// 	delay_ms(1);
-	//
-	// 	ADC_TG;
 	Delay_us(100);
 
 	ad_sum = 0;
-	//ADC_INT_IF_CLR; //清中断标志位
 
 	for (i = 0; i < 16; i++)
 	{
-		// 		ADC_TG;
-		// 		while(ADC_IF==0){};
-		// 		//adc_data = ADC_DATA_RD();
-		//
-		// 		k=ADC_DH;
-		// 		k =k <<8;
-		// 		k+=ADC_DL;
-		//
-		// 		ADC_INT_IF_CLR; //清中断标志位
-		// 		ad_sum+=k;
-
 		ADCC0 |= 0x40; //启动ADC转换
 		while (!(ADCC0 & 0x20))
 			;			//等待ADC转换结束
@@ -584,10 +383,6 @@ uchar read_ad(uchar ch)
 
 		Delay_us(20);
 	}
-
-	//ADC_P14_AN5;
-	ADCC1 = 2; //切换到an2
-
 
 #ifdef XBR403_03_2
 	ADCC1 = 0x00;  //选择外部通道0
@@ -1374,9 +1169,9 @@ void main()
 	resetbtcnt++;
 
 	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
-	Delay_us_1(10000);
+	Delay_us(10000);
 	FLASH_WriteData(resetbtcnt, USER_PARAMETER_START_SECTOR_ADDRESS1);
-	Delay_us_1(100);
+	Delay_us(100);
 
 	EA = 1;
 
@@ -1413,22 +1208,17 @@ void main()
 //			}
 //		}
 		
-		// if (1 == check_group_flag)
-		// {
-			// check_group_flag = 0;
-			if (light_status_xxx != light_status_xxx_last)
-			{
-				mcu_dp_enum_update(DPID_LIGHT_STATUS,light_status_xxx);
-				light_status_xxx_last = light_status_xxx;
-			}
-			
-			if (person_in_range_flag != person_in_range_flag_last)
-			{
-				mcu_dp_enum_update(DPID_PERSON_IN_RANGE,person_in_range_flag);
-				person_in_range_flag_last = person_in_range_flag;
-			}			
-
-		// }
+		if (light_status_xxx != light_status_xxx_last)
+		{
+			mcu_dp_enum_update(DPID_LIGHT_STATUS,light_status_xxx);
+			light_status_xxx_last = light_status_xxx;
+		}
+		
+		if (person_in_range_flag != person_in_range_flag_last)
+		{
+			mcu_dp_enum_update(DPID_PERSON_IN_RANGE,person_in_range_flag);
+			person_in_range_flag_last = person_in_range_flag;
+		}
 		
 		if (1 == radar_number_send_flag)
 		{
@@ -1444,22 +1234,6 @@ void main()
 			}
 		}
 
-//		if (check_group_count <= 2) //一上电间隔一秒获取3次群组地址
-//		{
-//			if (check_group_flag == 1)
-//			{
-//				check_group_flag = 0;
-//				check_group_count++;
-
-//				send_data(0x55);
-//				send_data(0xAA);
-//				send_data(0X00);
-//				send_data(0XB4); //新的命令字，功能不明
-//				send_data(0X00);
-//				send_data(0X00);
-//				send_data(0Xb3);
-//			}
-//		}
 		WDTC |= 0x10; //清看门狗
 
 		if (while_1flag == 0)
@@ -1536,10 +1310,8 @@ void main()
 					//PWM3init(100);
 					for (i = 0; i < 8; i++)
 					{
-						//if (groupaddr[i] != 0)
-						{
-							//mcu_dp_bool_mesh_update(DPID_SWITCH_LED2, SWITCHflag2, groupaddr[i]);
-						}
+						//
+						//
 					}
 				}
 			}
@@ -1573,13 +1345,6 @@ void main()
 			}
 		}
 	}
-
-	// 	while(1)
-	// 	{
-	// 		System_Time_Cnt();
-	// 		System_Task();
-	// 		WDTC |= 0x10;              //清狗
-	// 	}
 }
 
 /***************************************************************************************
@@ -1634,15 +1399,6 @@ void UART1_Rpt(void) interrupt UART1_VECTOR
 		EA = 1;
 	}
 }
-
-void UART2_Rpt(void) interrupt UART2_VECTOR
-{
-}
-
-// void Delay_2us(u16 Cnt)
-// {
-// 	while(Cnt--);
-// }
 
 void Flash_EraseBlock(unsigned int fui_Address)
 {
@@ -1726,59 +1482,59 @@ void savevar(void)
 {
 	unsigned char i;
 	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS0);
-	Delay_us_1(10000);
+	Delay_us(10000);
 
 	i=(TH/1000)>>8;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+0);
-	Delay_us_1(100);
+	Delay_us(100);
 	
     i=(TH/1000)&0xff;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+1);
-	Delay_us_1(100);
+	Delay_us(100);
 	
     i=LIGHT_TH;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+2);
-	Delay_us_1(100);
+	Delay_us(100);
 	
 	i=DELAY_NUM>>8;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+3);
-	Delay_us_1(100);
+	Delay_us(100);
 	i=DELAY_NUM&0xff;//&0xff;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+4);
-	Delay_us_1(100);
+	Delay_us(100);
 	
 	i=lightvalue;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+5);
-	Delay_us_1(100);
+	Delay_us(100);
 	
 	i=lowlightDELAY_NUM;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+6);
-	Delay_us_1(100);
+	Delay_us(100);
 	
 	i=~SWITCHfXBR;//&0xff;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+7);
-	Delay_us_1(100);
+	Delay_us(100);
 	
 	i=Linkage_flag;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+8);
-	Delay_us_1(100);	
+	Delay_us(100);	
 	
 	i=SWITCHflag2;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+9);
-	Delay_us_1(100);	
+	Delay_us(100);	
 	
 	i=all_day_micro_light_enable;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+10);
-	Delay_us_1(100);
+	Delay_us(100);
 	
 	i=temper_value;
 	FLASH_WriteData(i,USER_PARAMETER_START_SECTOR_ADDRESS0+11);
-	Delay_us_1(100);
+	Delay_us(100);
 
 ////////////////////////////////////////////////////////
 	
 	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
-	Delay_us_1(10000);
+	Delay_us(10000);
 	FLASH_WriteData(0, USER_PARAMETER_START_SECTOR_ADDRESS1+0);
 	
 	EA=1;				//-20200927

@@ -197,47 +197,35 @@ void all_data_update(void)
     mcu_dp_bool_update(DPID_SWITCH_LED2, SWITCHflag2); //灯的开关
     mcu_dp_value_update(DPID_BRIGHT_VALUE, lightvalue); //VALUE型数据上报;
 
-	if(LIGHT_TH==255)
-		light=0;
-	else if(LIGHT_TH==200)
-		light=2;
-	else if(LIGHT_TH==40)
-		light=3;		
-	else if(LIGHT_TH==20)
-		light=4;
-	else //if(LIGHT_TH==200)
-		light=5;
+		if(LIGHT_TH==255)
+			light=0;
+		else if(LIGHT_TH==200)
+			light=2;
+		else if(LIGHT_TH==40)
+			light=3;		
+		else if(LIGHT_TH==20)
+			light=4;
+		else //if(LIGHT_TH==200)
+			light=5;
 
     mcu_dp_enum_update(DPID_CDS, light); //枚举型数据上报;
     mcu_dp_value_update(DPID_PIR_DELAY, DELAY_NUM); //VALUE型数据上报;
     mcu_dp_bool_update(DPID_SWITCH_XBR, SWITCHfXBR); //BOOL型数据上报;
     mcu_dp_value_update(DPID_STANDBY_TIME, lowlightDELAY_NUM); //VALUE型数据上报;
 
-	radius=TH/10000;
-	radius=50-radius;
+		radius=TH/10000;
+		radius=50-radius;
 
     mcu_dp_value_update(DPID_SENSE_STRESS, radius); //VALUE型数据上报;
-
-//    mcu_dp_value_update(DPID_ADDR, 10); //VALUE型数据上报;
-//    mcu_dp_value_update(DPID_ADDREND, 11); //VALUE型数据上报;
-//    mcu_dp_value_update(DPID_GROUP, 12); //VALUE型数据上报;
-
-
-//    mcu_dp_string_update(DPID_DEBUG, "1012", 4); //STRING型数据上报;
-
-
-    //mcu_dp_bool_update(DPID_TEST_BN0,当前测试开关0); //BOOL型数据上报;
-    //mcu_dp_bool_update(DPID_TEST_BN1,当前测试开关1); //BOOL型数据上报;
-    //mcu_dp_bool_update(DPID_TEST_BN2,当前测试开关2); //BOOL型数据上报;
 	
-	mcu_dp_bool_update(DPID_SWITCH_LINKAGE,Linkage_flag); //BOOL型数据上报;
+		mcu_dp_bool_update(DPID_SWITCH_LINKAGE,Linkage_flag); //BOOL型数据上报;
 
     mcu_dp_bool_update(DPID_ALL_DAY_MICRO_LIGHT,all_day_micro_light_enable); //BOOL型数据上报;
     mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,radar_trig_times); //VALUE型数据上报;
 
     mcu_dp_enum_update(DPID_LIGHT_STATUS,light_status_xxx); //枚举型数据上报;
     mcu_dp_enum_update(DPID_PERSON_IN_RANGE,person_in_range_flag); //枚举型数据上报;
-	mcu_dp_value_update(DPID_TEMP_VALUE,temper_value); //VALUE型数据上报;
+		mcu_dp_value_update(DPID_TEMP_VALUE,temper_value); //VALUE型数据上报;
 }
 
 
@@ -350,9 +338,9 @@ static unsigned char dp_download_temp_value_handle(const unsigned char value[], 
     
     temper_value = mcu_get_dp_download_enum(value,length);
 	
-	PWM3init(0);
-	PWM3init(XRBoffbrightvalue);
-		
+//		PWM3init(0);
+//		PWM3init(XRBoffbrightvalue);
+		PWM0init(temper_value);
     
     //处理完DP数据后应有反馈
     ret = mcu_dp_enum_update(DPID_TEMP_VALUE, temper_value);
