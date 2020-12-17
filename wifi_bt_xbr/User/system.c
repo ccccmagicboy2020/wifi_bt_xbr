@@ -465,6 +465,7 @@ void data_handle(unsigned short offset)
       
                 if(SUCCESS == ret) {
                     //成功提示
+					savevar();
                 }else {
                     //错误提示
                 }
