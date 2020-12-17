@@ -73,7 +73,6 @@ const DOWNLOAD_CMD_S download_cmd[] =
 {
   {DPID_SWITCH_LED, DP_TYPE_BOOL},
   {DPID_BRIGHT_VALUE, DP_TYPE_VALUE},
-  {DPID_TEMP_VALUE, DP_TYPE_VALUE},
   {DPID_CDS, DP_TYPE_ENUM},
   {DPID_PIR_DELAY, DP_TYPE_VALUE},
   {DPID_SWITCH_XBR, DP_TYPE_BOOL},
@@ -86,6 +85,7 @@ const DOWNLOAD_CMD_S download_cmd[] =
   {DPID_CLEAR_TRIGGER_NUMBER, DP_TYPE_BOOL},
   {DPID_LIGHT_STATUS, DP_TYPE_ENUM},
   {DPID_PERSON_IN_RANGE, DP_TYPE_ENUM},
+  {DPID_TEMP_VALUE2, DP_TYPE_VALUE},
 };
 
 
@@ -142,7 +142,6 @@ void all_data_update(void)
     //此代码为平台自动生成，请按照实际数据修改每个可下发可上报函数和只上报函数
     mcu_dp_bool_update(DPID_SWITCH_LED,当前开关); //BOOL型数据上报;
     mcu_dp_value_update(DPID_BRIGHT_VALUE,当前亮度值); //VALUE型数据上报;
-    mcu_dp_value_update(DPID_TEMP_VALUE,当前冷暖值); //VALUE型数据上报;
     mcu_dp_enum_update(DPID_CDS,当前光敏参数); //枚举型数据上报;
     mcu_dp_value_update(DPID_PIR_DELAY,当前感应延时); //VALUE型数据上报;
     mcu_dp_bool_update(DPID_SWITCH_XBR,当前雷达开关); //BOOL型数据上报;
@@ -154,6 +153,7 @@ void all_data_update(void)
     mcu_dp_value_update(DPID_RADAR_TRIGGER_TIMES,当前雷达触发计数); //VALUE型数据上报;
     mcu_dp_enum_update(DPID_LIGHT_STATUS,当前灯状态); //枚举型数据上报;
     mcu_dp_enum_update(DPID_PERSON_IN_RANGE,当前人状态); //枚举型数据上报;
+    mcu_dp_value_update(DPID_TEMP_VALUE2,当前冷暖值); //VALUE型数据上报;
 
     */
 }
@@ -215,33 +215,6 @@ static unsigned char dp_download_bright_value_handle(const unsigned char value[]
     
     //处理完DP数据后应有反馈
     ret = mcu_dp_value_update(DPID_BRIGHT_VALUE,bright_value);
-    if(ret == SUCCESS)
-        return SUCCESS;
-    else
-        return ERROR;
-}
-/*****************************************************************************
-函数名称 : dp_download_temp_value_handle
-功能描述 : 针对DPID_TEMP_VALUE的处理函数
-输入参数 : value:数据源数据
-        : length:数据长度
-返回参数 : 成功返回:SUCCESS/失败返回:ERROR
-使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
-*****************************************************************************/
-static unsigned char dp_download_temp_value_handle(const unsigned char value[], unsigned short length)
-{
-    //示例:当前DP类型为VALUE
-    unsigned char ret;
-    unsigned long temp_value;
-    
-    temp_value = mcu_get_dp_download_value(value,length);
-    /*
-    //VALUE类型数据处理
-    
-    */
-    
-    //处理完DP数据后应有反馈
-    ret = mcu_dp_value_update(DPID_TEMP_VALUE,temp_value);
     if(ret == SUCCESS)
         return SUCCESS;
     else
@@ -519,6 +492,33 @@ static unsigned char dp_download_clear_trigger_number_handle(const unsigned char
     else
         return ERROR;
 }
+/*****************************************************************************
+函数名称 : dp_download_temp_value2_handle
+功能描述 : 针对DPID_TEMP_VALUE2的处理函数
+输入参数 : value:数据源数据
+        : length:数据长度
+返回参数 : 成功返回:SUCCESS/失败返回:ERROR
+使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
+*****************************************************************************/
+static unsigned char dp_download_temp_value2_handle(const unsigned char value[], unsigned short length)
+{
+    //示例:当前DP类型为VALUE
+    unsigned char ret;
+    unsigned long temp_value2;
+    
+    temp_value2 = mcu_get_dp_download_value(value,length);
+    /*
+    //VALUE类型数据处理
+    
+    */
+    
+    //处理完DP数据后应有反馈
+    ret = mcu_dp_value_update(DPID_TEMP_VALUE2,temp_value2);
+    if(ret == SUCCESS)
+        return SUCCESS;
+    else
+        return ERROR;
+}
 
 
 
@@ -555,10 +555,6 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             //亮度值处理函数
             ret = dp_download_bright_value_handle(value,length);
         break;
-        case DPID_TEMP_VALUE:
-            //冷暖值处理函数
-            ret = dp_download_temp_value_handle(value,length);
-        break;
         case DPID_CDS:
             //光敏参数处理函数
             ret = dp_download_cds_handle(value,length);
@@ -594,6 +590,10 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
         case DPID_CLEAR_TRIGGER_NUMBER:
             //计数清零处理函数
             ret = dp_download_clear_trigger_number_handle(value,length);
+        break;
+        case DPID_TEMP_VALUE2:
+            //冷暖值处理函数
+            ret = dp_download_temp_value2_handle(value,length);
         break;
 
         

@@ -259,9 +259,6 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //亮度值(可下发可上报)
 //备注:灯的亮度值
 #define DPID_BRIGHT_VALUE 22
-//冷暖值(可下发可上报)
-//备注:
-#define DPID_TEMP_VALUE 23
 //光敏参数(可下发可上报)
 //备注:红外对光的敏感度
 #define DPID_CDS 101
@@ -300,6 +297,9 @@ BLE_test_result内部有#err提示,完成函数后请删除该#err
 //人状态(只上报)
 //备注:
 #define DPID_PERSON_IN_RANGE 119
+//冷暖值(可下发可上报)
+//备注:
+#define DPID_TEMP_VALUE2 150
 
 
 

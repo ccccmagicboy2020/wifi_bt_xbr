@@ -49,12 +49,12 @@ extern u8 idata Exit_network_controlflag;
 //extern TYPE_BUFFER_S FlashBuffer;
 void send_data(u8 d);
 void reset_bt_module(void);
-unsigned char PWM3init(unsigned char ab);
+extern unsigned char PWM3init(unsigned char ab);
 void savevar(void);
 void Flash_EraseBlock(unsigned int fui_Address);//flash扇区擦除
 void FLASH_WriteData(unsigned char fuc_SaveData, unsigned int fui_Address);//flash写入
 void Delay_us_1(uint q1);
-unsigned char PWM0init(unsigned char ab);
+extern unsigned char PWM0init(unsigned char ab);
 
 void reset_bt_module(void)
 {
@@ -313,15 +313,16 @@ static unsigned char dp_download_temp_value_handle(const unsigned char value[], 
     
     temper_value_xxx = mcu_get_dp_download_enum(value,length);
 	
-	if(temper_value_xxx==temper_value)
-	{
-		return ERROR;
-	}
-	else
-	{
-		//
-	}		
-	
+		if(temper_value_xxx==temper_value)
+		{
+			return ERROR;
+		}
+		else
+		{
+			//
+		}		
+		
+		temper_value = temper_value_xxx;
 //		PWM3init(0);
 //		PWM3init(XRBoffbrightvalue);
 		PWM0init(temper_value);

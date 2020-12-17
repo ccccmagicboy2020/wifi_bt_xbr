@@ -3,14 +3,10 @@
 //#include "Mcu_api.h"
 #include "wifi.h"
 
-//#define XBR403 //硬件板卡的版本
 #define XBR403_03_2 //硬件板卡的版本
+
 #define USER_PARAMETER_START_SECTOR_ADDRESS0 0x2F00
 #define USER_PARAMETER_START_SECTOR_ADDRESS1 0x2F80
-
-//#define V10
-
-//#define  VERSION  0X21
 
 #define TH_LOW 30000
 #define TH_HIGH 4000000
