@@ -1104,7 +1104,7 @@ unsigned char PWM3init(unsigned char ab)
 	else
 	{
 		light_status_xxx = 2;
-		person_in_range_flag = 1;
+		person_in_range_flag = 0;
 	}
 	
 	aa = (u8)(temper_value*ab/100 + 0.5);
