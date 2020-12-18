@@ -14,8 +14,8 @@
 #define TH_DEF 40000
 
 //允许噪声值偏差范围
-#define MAX_DELTA0 20000 //最大偏差低值
-#define MAX_DELTA1 60000 //最大偏差高值
+#define MAX_DELTA0 30000 //最大偏差低值
+#define MAX_DELTA1 80000 //最大偏差高值
 
 #define MAX_DELAY 1800
 //最大延时秒数
