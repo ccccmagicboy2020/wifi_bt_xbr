@@ -58,7 +58,7 @@ u8 xdata lowlightDELAY_NUM;
 u8 xdata RXnum = 0;
 u8 while_1flag = 0;		  //伴亮完成标志
 u8 while_2flag = 0;		  //???
-u8 xdata SWITCHflag = 0;  //暂时没有使用
+//u8 xdata SWITCHflag = 0;  //暂时没有使用
 u8 xdata SWITCHflag2 = 0; //灯开关的变量，可由APP设置
 u8 xdata SWITCHfXBR = 1;  //雷达感应开关的变量，可由APP设置
 u8 xdata lightvalue = 10; //亮度值，可由APP设置
@@ -1110,8 +1110,8 @@ unsigned char PWM3init(unsigned char ab)
 	aa = (u8)(temper_value*ab/100 + 0.5);
 	
 	bb = ab - aa;
-	PWM0init(aa);//冷
-	PWM3init_xxx(bb);//暖
+	PWM0init(bb);//冷
+	PWM3init_xxx(aa);//暖
 	
 	return 0;
 }
@@ -1130,7 +1130,7 @@ void main()
 	GPIO_Init();
 	//LIGHT_ON;
 	//P0_6=0;
-	PWM3init(100);
+//	PWM3init(100);
 	Timer_Init();
 	UART1_Init();
 	ADC_Init();
@@ -1147,8 +1147,8 @@ void main()
 	Delay_ms(200);
 
 	//LIGHT_ON;
-	PWM3init(100);
-	SWITCHflag = 1;
+	//PWM3init(100);
+	//SWITCHflag = 1;
 	
 	
 	#ifdef XBR403_03_2
@@ -1167,6 +1167,8 @@ void main()
 
 	EA = 0;
 	set_var(); //从flash读取出变量
+	
+	PWM3init(100);	
 
 	resetbtcnt++;
 
