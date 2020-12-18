@@ -58,7 +58,7 @@ u8 xdata lowlightDELAY_NUM;
 u8 xdata RXnum = 0;
 u8 while_1flag = 0;		  //伴亮完成标志
 u8 while_2flag = 0;		  //???
-//u8 xdata SWITCHflag = 0;  //暂时没有使用
+
 u8 xdata SWITCHflag2 = 0; //灯开关的变量，可由APP设置
 u8 xdata SWITCHfXBR = 1;  //雷达感应开关的变量，可由APP设置
 u8 xdata lightvalue = 10; //亮度值，可由APP设置
@@ -78,6 +78,7 @@ u8 xdata temper_value = 0;			//冷暖值
 
 u8 xdata wifi_join_cnt = 0;
 u8 xdata all_day_micro_light_enable = 0;
+
 u16 xdata radar_trig_times = 0;
 u16 xdata radar_trig_times_last = 0;
 
@@ -446,10 +447,22 @@ void set_var(void)
 	Flash_ReadArr(USER_PARAMETER_START_SECTOR_ADDRESS1, 2, guc_Read_a1); //
 	resetbtcnt = guc_Read_a1[0];
 	wifi_join_cnt = guc_Read_a1[1];
-	savevar();
+	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);	
+	Delay_us(10000);
+	
+	resetbtcnt++;
+	
+	FLASH_WriteData(resetbtcnt, USER_PARAMETER_START_SECTOR_ADDRESS1 + 0);
+	Delay_us(100);	
+
 	if (0 == wifi_join_cnt)
 	{
 		reset_bt_module();
+	}
+	else if (1 == wifi_join_cnt)
+	{
+		FLASH_WriteData(wifi_join_cnt, USER_PARAMETER_START_SECTOR_ADDRESS1 + 1);
+		Delay_us(100);		
 	}
 }
 
@@ -1168,14 +1181,7 @@ void main()
 	EA = 0;
 	set_var(); //从flash读取出变量
 	
-	PWM3init(100);	
-
-	resetbtcnt++;
-
-	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
-	Delay_us(10000);
-	FLASH_WriteData(resetbtcnt, USER_PARAMETER_START_SECTOR_ADDRESS1);
-	Delay_us(100);
+	PWM3init(100);
 
 	EA = 1;
 
@@ -1193,7 +1199,7 @@ void main()
 	SUM = 0;
 	while (1)
 	{
-		if (resetbtcnt >= 3)	//行为是每三次上电会复位一次蓝牙模块
+		if (resetbtcnt > 3)
 		{
 			resetbtcnt = 0;
 			reset_bt_module();
@@ -1240,7 +1246,11 @@ void main()
 
 		WDTC |= 0x10; //清看门狗
 
-		wifi_uart_service();
+		if (while_1flag == 0)
+		{
+			if ((times & 0x1f) == 0)
+				wifi_uart_service();
+		}
 
 		if (SWITCHfXBR == 1) //雷达开, app控制
 		{
@@ -1536,7 +1546,7 @@ void savevar(void)
 	Flash_EraseBlock(USER_PARAMETER_START_SECTOR_ADDRESS1);
 	Delay_us(10000);
 	FLASH_WriteData(0, USER_PARAMETER_START_SECTOR_ADDRESS1+0);//clear resetbtcnt
-	FLASH_WriteData(1,USER_PARAMETER_START_SECTOR_ADDRESS1+1);//clear join count
+	FLASH_WriteData(1, USER_PARAMETER_START_SECTOR_ADDRESS1+1);//clear join count
 	
 	EA=1;				//-20200927
 
